@@ -27,8 +27,15 @@ const weexFactoryPlugin = {
 
 const aliases = require('./alias')
 const resolve = p => {
+  // 将传入的字符串按照 / 分割成数组，并取数组的第一项
   const base = p.split('/')[0]
+  // 查看 aliases[base] 是否存在
+  // 传入参数 web/entry-runtime-with-compiler.js
+  // base web
+  // aliases['web'] === src/platforms/web
   if (aliases[base]) {
+    // p.slice('web'.length + 1)  返回  entry-runtime-with-compiler.js
+    // 返回 src/platforms/web/entry-runtime-with-compiler.js
     return path.resolve(aliases[base], p.slice(base.length + 1))
   } else {
     return path.resolve(__dirname, '../', p)
@@ -120,7 +127,10 @@ const builds = {
     banner
   },
   // Runtime+compiler development build (Browser)
+  // 分析学习这个版本
   'web-full-dev': {
+    // 入口文件
+    // 入口处理后的返回文件为  src/platforms/web/entry-runtime-with-compiler.js
     entry: resolve('web/entry-runtime-with-compiler.js'),
     dest: resolve('dist/vue.js'),
     format: 'umd',

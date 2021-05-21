@@ -1,8 +1,10 @@
+// 导入 Vue 入口
 import Vue from './instance/index'
 import { initGlobalAPI } from './global-api/index'
 import { isServerRendering } from 'core/util/env'
 import { FunctionalRenderContext } from 'core/vdom/create-functional-component'
 
+// 执行全局 Api
 initGlobalAPI(Vue)
 
 Object.defineProperty(Vue.prototype, '$isServer', {
