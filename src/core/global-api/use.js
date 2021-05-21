@@ -3,6 +3,7 @@
 import { toArray } from '../util/index'
 
 export function initUse (Vue: GlobalAPI) {
+  // plugin 必须是 函数或者对象
   Vue.use = function (plugin: Function | Object) {
     // 如果 Vue 中 有 _installedPlugins 返回否则返回 []
     const installedPlugins = (this._installedPlugins || (this._installedPlugins = []))
@@ -16,10 +17,11 @@ export function initUse (Vue: GlobalAPI) {
     const args = toArray(arguments, 1)
     // 将 Vue 添加至数组的第一项
     args.unshift(this)
-    // 如果传入的 plugin 的 install 属性是一个 function
+    // 如果传入的 plugin 是一个对象，则该对象必须有 install 方法
     if (typeof plugin.install === 'function') {
       // 调用 plugin 的 install 方法，并且传入 args 数组，且该方法的 this 指向 plugin
       plugin.install.apply(plugin, args)
+
     } else if (typeof plugin === 'function') {
       // 如果 plugin 本身是一个 function, 直接调用，将参数传入
       plugin.apply(null, args)

@@ -82,11 +82,15 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   // builtInComponents 后续查看
   extend(Vue.options.components, builtInComponents)
 
-  // 给 Vue 注册插件
+  // 给 Vue 全局注册插件 Vue.use(plugin)
   initUse(Vue)
 
-  // 
+  // 全局注册一个混入 Vue.mixin(mixin)
   initMixin(Vue)
+
+  // 利用 Vue 实例注册一个子组件 Vue.extend()
   initExtend(Vue)
+
+
   initAssetRegisters(Vue)
 }
