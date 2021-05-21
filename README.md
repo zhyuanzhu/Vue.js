@@ -20,5 +20,9 @@
 
 **通过调试 `Runtime+compiler` 完整版本分析学习**
 
+## 问题
+
+- `src/core/global-api/extend` 中的 `cachedCtors` 的意义所在。需要 `debug` 代码查看
+
 
 

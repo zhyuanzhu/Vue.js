@@ -88,7 +88,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   // 全局注册一个混入 Vue.mixin(mixin)
   initMixin(Vue)
 
-  // 利用 Vue 实例注册一个子组件 Vue.extend()
+  // 利用 Vue.extend(options) 返回一个子组件的构造函数
   initExtend(Vue)
 
 
