@@ -24,5 +24,7 @@
 
 - `src/core/global-api/extend` 中的 `cachedCtors` 的意义所在。需要 `debug` 代码查看
 
+- `Vue.prototype._init` 方法中的 `options._isComponent`, 其中这个 `_isComponent` 这个属性是什么时候挂载的？
+
 
 

@@ -17,8 +17,9 @@ function Vue (options) {
   // 来于 initMixin
   this._init(options)
 }
-// ?
+// 给 Vue 的原型挂载 _init 方法
 initMixin(Vue)
+
 // ?
 stateMixin(Vue)
 // ?
