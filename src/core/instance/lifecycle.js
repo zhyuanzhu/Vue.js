@@ -30,10 +30,11 @@ export function setActiveInstance(vm: Component) {
 }
 
 export function initLifecycle (vm: Component) {
+  // 缓存 $options
   const options = vm.$options
-
   // locate first non-abstract parent
   let parent = options.parent
+  // 该组件有 parent 属性，并且 该组件不存在 abstract 属性
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
