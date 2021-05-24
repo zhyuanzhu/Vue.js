@@ -34,6 +34,7 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  // 浏览器支持 es6 Proxy
   const hasProxy =
     typeof Proxy !== 'undefined' && isNative(Proxy)
 
@@ -76,14 +77,19 @@ if (process.env.NODE_ENV !== 'production') {
   }
 
   initProxy = function initProxy (vm) {
+    // 如果支持 Proxy
     if (hasProxy) {
       // determine which proxy handler to use
+      // 缓存传入的 $options
       const options = vm.$options
+      // 查看是否存在 render 且 render 的属性 _withStripped 收否存在
+      // _withStripped 什么时候挂载？
       const handlers = options.render && options.render._withStripped
         ? getHandler
         : hasHandler
       vm._renderProxy = new Proxy(vm, handlers)
     } else {
+      // 否则 直接给 vm 挂载 属性 _renderProxy，赋值为 他自身
       vm._renderProxy = vm
     }
   }

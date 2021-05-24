@@ -34,6 +34,7 @@ export function initMixin (Vue: Class<Component>) {
     vm._isVue = true
     // merge options
     // _isComponent 这个属性什么时候生成？
+     // 这个条件判断，无论是 if 还是 else 中，都是 为 vm 挂载 $options 属性
     if (options && options._isComponent) {
       // 如果 传入的参数 options 有 _isComponent 这个属性
       // optimize internal component instantiation
@@ -47,10 +48,17 @@ export function initMixin (Vue: Class<Component>) {
         vm
       )
     }
+
+    /**
+     *  vm 中已经有 $options 属性，即 Vue 已经有 $options 属性
+     */
+
     /* istanbul ignore else */
+    // 如果是开发环境
     if (process.env.NODE_ENV !== 'production') {
       initProxy(vm)
     } else {
+      // 生产环境，给 Vue 设置 _renderProxy 静态属性，赋值为 自身
       vm._renderProxy = vm
     }
     // expose real self
@@ -78,8 +86,12 @@ export function initMixin (Vue: Class<Component>) {
 }
 
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
+  // vm.constructor 指向 vm 的构造函数
+  // 获取 该构造函数的 options 属性，并将 vm.$options 赋值为该属性的值
   const opts = vm.$options = Object.create(vm.constructor.options)
   // doing this because it's faster than dynamic enumeration.
+
+  // 将一些 options 对象的属性挂载到 opts 上
   const parentVnode = options._parentVnode
   opts.parent = options.parent
   opts._parentVnode = parentVnode

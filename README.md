@@ -26,5 +26,9 @@
 
 - `Vue.prototype._init` 方法中的 `options._isComponent`, 其中这个 `_isComponent` 这个属性是什么时候挂载的？
 
+- `_init` 方法 `initProxy` 中，查看 `vm.render._withStripped`, 其中这个 `_withStripped` 这个属性是什么时候挂载的？
+
+
+
 
 
