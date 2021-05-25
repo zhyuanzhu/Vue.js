@@ -13,7 +13,10 @@ export function initEvents (vm: Component) {
   vm._events = Object.create(null)
   vm._hasHookEvent = false
   // init parent attached events
+  // _parentListeners 的挂载时间
+  // 获取当前 $options 的 _parentListeners
   const listeners = vm.$options._parentListeners
+  // 如果当前 $options._parentListeners 存在
   if (listeners) {
     updateComponentListeners(vm, listeners)
   }

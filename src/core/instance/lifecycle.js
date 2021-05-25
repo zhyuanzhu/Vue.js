@@ -42,7 +42,12 @@ export function initLifecycle (vm: Component) {
     parent.$children.push(vm)
   }
 
+  /**
+   *  开始分析处
+   */
+
   vm.$parent = parent
+  // $root 如果有父组件就是父组件的 $root， 否则就是 vm 自己
   vm.$root = parent ? parent.$root : vm
 
   vm.$children = []

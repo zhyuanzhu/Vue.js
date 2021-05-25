@@ -67,8 +67,11 @@ export function initMixin (Vue: Class<Component>) {
     // 初始化声明周期
     initLifecycle(vm)
 
+    // 初始化 事件
     initEvents(vm)
+
     initRender(vm)
+    
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
     initState(vm)
@@ -101,6 +104,7 @@ export function initInternalComponent (vm: Component, options: InternalComponent
 
   const vnodeComponentOptions = parentVnode.componentOptions
   opts.propsData = vnodeComponentOptions.propsData
+
   opts._parentListeners = vnodeComponentOptions.listeners
   opts._renderChildren = vnodeComponentOptions.children
   opts._componentTag = vnodeComponentOptions.tag
