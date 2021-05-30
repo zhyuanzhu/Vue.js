@@ -69,6 +69,7 @@ export function initState (vm: Component) {
     observe(vm._data = {}, true /* asRootData */)
   }
 
+  /** TODO */
   // 初始化 computed
   if (opts.computed) initComputed(vm, opts.computed)
 
@@ -197,6 +198,7 @@ export function getData (data: Function, vm: Component): any {
 
 const computedWatcherOptions = { lazy: true }
 
+// TODO
 function initComputed (vm: Component, computed: Object) {
   // $flow-disable-line
   const watchers = vm._computedWatchers = Object.create(null)
@@ -328,6 +330,7 @@ function initMethods (vm: Component, methods: Object) {
   }
 }
 
+// TODO
 function initWatch (vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
