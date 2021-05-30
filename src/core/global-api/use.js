@@ -20,6 +20,8 @@ export function initUse (Vue: GlobalAPI) {
     // 如果传入的 plugin 是一个对象，则该对象必须有 install 方法
     if (typeof plugin.install === 'function') {
       // 调用 plugin 的 install 方法，并且传入 args 数组，且该方法的 this 指向 plugin
+      // 传入了多个参数
+      // 调用插件中的方法，传递参数
       plugin.install.apply(plugin, args)
 
     } else if (typeof plugin === 'function') {

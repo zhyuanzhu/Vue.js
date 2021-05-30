@@ -80,6 +80,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
   // extend(to, from) 将 from 浅拷贝至 to； 如果 key 重复，from 对应的属性或方法覆盖 to 原有的属性或方法
   // builtInComponents 后续查看
+  // 设置 keep-alive 组件
   extend(Vue.options.components, builtInComponents)
 
   // 给 Vue 全局注册插件 Vue.use(plugin)
@@ -91,6 +92,6 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   // 利用 Vue.extend(options) 返回一个子组件的构造函数
   initExtend(Vue)
 
-
+  // 注册 Vue.directive() Vue.component()  Vue.filter()
   initAssetRegisters(Vue)
 }
