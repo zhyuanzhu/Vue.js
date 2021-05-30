@@ -20,13 +20,18 @@ function Vue (options) {
 // 给 Vue 的原型挂载 _init 方法
 initMixin(Vue)
 
-// ?
+// 给 Vue 的原型设置 $data, $props, $set, $delete, $watch 方法
 stateMixin(Vue)
-// ?
+
+// 给 Vue 的原型设置 $on, $once, $off, $emit 方法
 eventsMixin(Vue)
-// ?
+
+// 初始化生命周期相关的方法
+// 给 Vue 的原型挂载 _update, $forceUpdate, $destroy 方法
 lifecycleMixin(Vue)
-// ?
+
+// 混入 render
+// 给 Vue 的原型挂载 $nextTick 和 _render 方法
 renderMixin(Vue)
 
 export default Vue

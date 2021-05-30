@@ -339,12 +339,16 @@ export function stateMixin (Vue: Class<Component>) {
       warn(`$props is readonly.`, this)
     }
   }
+  // 给 Vue的原型上挂载了 $data, $props
+  // 设置 getter 返回 this._data 和 this._props
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 
+  // 设置 $set 和 $delete 方法
   Vue.prototype.$set = set
   Vue.prototype.$delete = del
 
+  // 设置 $watch
   Vue.prototype.$watch = function (
     expOrFn: string | Function,
     cb: any,
