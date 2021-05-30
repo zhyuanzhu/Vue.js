@@ -13,6 +13,9 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 let uid = 0
 
 export function initMixin (Vue: Class<Component>) {
+  // 给 Vue 实例增加 _init 方法
+  // 合并 options
+  // 初始化的一些操作
   Vue.prototype._init = function (options?: Object) {
     // 缓存 this , 即 Vue
     const vm: Component = this
@@ -31,10 +34,12 @@ export function initMixin (Vue: Class<Component>) {
 
     // a flag to avoid this being observed
     // 给 Vue 挂载静态属性 _isVue，默认值设为 true
+    // 设置响应式的时候会处理
     vm._isVue = true
     // merge options
     // _isComponent 这个属性什么时候生成？
      // 这个条件判断，无论是 if 还是 else 中，都是 为 vm 挂载 $options 属性
+    // 判断是否是组件
     if (options && options._isComponent) {
       // 如果 传入的参数 options 有 _isComponent 这个属性
       // optimize internal component instantiation
@@ -56,6 +61,7 @@ export function initMixin (Vue: Class<Component>) {
 
     /* istanbul ignore else */
     // 如果是开发环境
+    // 设置渲染时候的代理对象
     if (process.env.NODE_ENV !== 'production') {
       initProxy(vm)
     } else {
@@ -64,10 +70,13 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
+
     // 初始化声明周期
+    // $children, $parent, $root, $refs
     initLifecycle(vm)
 
-    // 初始化 事件
+    // 初始化 监听事件 
+    // 父组件绑定在当前组件上的自定义事件
     initEvents(vm)
 
     initRender(vm)

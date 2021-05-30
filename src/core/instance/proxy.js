@@ -78,6 +78,7 @@ if (process.env.NODE_ENV !== 'production') {
 
   initProxy = function initProxy (vm) {
     // 如果支持 Proxy
+    // 使用 new Proxy
     if (hasProxy) {
       // determine which proxy handler to use
       // 缓存传入的 $options

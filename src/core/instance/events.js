@@ -10,14 +10,22 @@ import {
 import { updateListeners } from '../vdom/helpers/index'
 
 export function initEvents (vm: Component) {
+  // 给当前组件对象添加一个 events 属性并赋值为一个空对象
+  // 存储事件名称以及对应的事件处理函数
+  // 发布订阅模式
+  // $on 中国呢使用 _events
   vm._events = Object.create(null)
+  // 设置 _hasHookEvent 属性并赋值为 false
   vm._hasHookEvent = false
+
   // init parent attached events
   // _parentListeners 的挂载时间
   // 获取当前 $options 的 _parentListeners
+  // 获取父组件上的附加事件
   const listeners = vm.$options._parentListeners
   // 如果当前 $options._parentListeners 存在
   if (listeners) {
+    // 将父组件上的附加事件注册到当前组件  ？？？
     updateComponentListeners(vm, listeners)
   }
 }

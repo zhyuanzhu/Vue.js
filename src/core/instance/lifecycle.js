@@ -35,6 +35,7 @@ export function initLifecycle (vm: Component) {
   // locate first non-abstract parent
   let parent = options.parent
   // 该组件有 parent 属性，并且 该组件不存在 abstract 属性
+  // 将当前组件添加到父组件的 $children 中
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
@@ -53,6 +54,7 @@ export function initLifecycle (vm: Component) {
   vm.$children = []
   vm.$refs = {}
 
+  // 设置的属性？
   vm._watcher = null
   vm._inactive = null
   vm._directInactive = false
