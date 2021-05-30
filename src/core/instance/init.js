@@ -89,7 +89,10 @@ export function initMixin (Vue: Class<Component>) {
     // 把 inject 注入到 vm
     // initInjections 和 initProvide 实现依赖注入
     initInjections(vm) // resolve injections before data/props
-    
+
+    // 初始化 props, methods, data, computed, watch
+    // 访问 props中的属性 代理至 _props
+    // 访问 data中的属性 代理至 _data
     initState(vm)
 
     // 把 provide 注入到 vm
@@ -100,13 +103,16 @@ export function initMixin (Vue: Class<Component>) {
     callHook(vm, 'created')
 
     /* istanbul ignore if */
+    // 开发环境且开启了 性能检测 mark
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
       vm._name = formatComponentName(vm, false)
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
+    // 存在 el
     if (vm.$options.el) {
+      // 调用 $mount 方法挂载 el
       vm.$mount(vm.$options.el)
     }
   }

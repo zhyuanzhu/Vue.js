@@ -49,14 +49,30 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
+
+  // 初始化组件的 props
+  // 响应式绑定 props 中的数据 注入到 Vue 实例
+  // 可以通过 this._props
   if (opts.props) initProps(vm, opts.props)
+
+  // 初始化组件的 methods 中的方法
+  // 判断了 methods 中的方法名 是否在 props 中有同名，并且对 方法名称做了规范处理
   if (opts.methods) initMethods(vm, opts.methods)
+
+  // 判断 data 是否存在
   if (opts.data) {
+    // 初始化 data 判断  data 中的属性名称
+    // 将 data 注入到 vue 实例中，并做响应式处理 data
     initData(vm)
   } else {
+    // 不存在，给 vm 挂载 _data 属性并赋值，定义为响应式对象
     observe(vm._data = {}, true /* asRootData */)
   }
+
+  // 初始化 computed
   if (opts.computed) initComputed(vm, opts.computed)
+
+  // 初始化 watch
   if (opts.watch && opts.watch !== nativeWatch) {
     initWatch(vm, opts.watch)
   }
@@ -111,9 +127,12 @@ function initProps (vm: Component, propsOptions: Object) {
 }
 
 function initData (vm: Component) {
+  // 获取 $options 中的 data
   let data = vm.$options.data
+  // 将 data 做响应式处理并给 vm._data 赋值
+  // 如果是函数，获取返回值。否则直接获取 data
   data = vm._data = typeof data === 'function'
-    ? getData(data, vm)
+    ? getData(data, vm)  // 直接调用，并且改变函数内部的指向 vm
     : data || {}
   if (!isPlainObject(data)) {
     data = {}
@@ -128,9 +147,12 @@ function initData (vm: Component) {
   const props = vm.$options.props
   const methods = vm.$options.methods
   let i = keys.length
+  // 循环遍历  data 的 key
+  // 判断 data 中的属性是否和 props 和 methods 中的属性重名
   while (i--) {
     const key = keys[i]
     if (process.env.NODE_ENV !== 'production') {
+      // 如果 methods 中有 data 中的 key, warn 警告
       if (methods && hasOwn(methods, key)) {
         warn(
           `Method "${key}" has already been defined as a data property.`,
@@ -138,6 +160,8 @@ function initData (vm: Component) {
         )
       }
     }
+
+    // 如果 props 中有 data 中的 key, warn 警告
     if (props && hasOwn(props, key)) {
       process.env.NODE_ENV !== 'production' && warn(
         `The data property "${key}" is already declared as a prop. ` +
@@ -145,10 +169,15 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      // 判断是否以 _ 或者 $ 开头， 如果不是
+      // 将 _data 注入到 vue 实例中
+      // proxy 处理的结果为 访问 vm.key  实际访问的是 vm._data.key
+      // 将 data 中的 key 都挂载到 _data 上
       proxy(vm, `_data`, key)
     }
   }
   // observe data
+  // 响应式处理 data
   observe(data, true /* asRootData */)
 }
 
@@ -156,6 +185,7 @@ export function getData (data: Function, vm: Component): any {
   // #7573 disable dep collection when invoking data getters
   pushTarget()
   try {
+    // 调用该函数，并修改内部的 this 为 传入的参数 vm
     return data.call(vm, vm)
   } catch (e) {
     handleError(e, vm, `data()`)
@@ -273,12 +303,17 @@ function initMethods (vm: Component, methods: Object) {
           vm
         )
       }
+
+      // 判断 props 是否存在 并且 key 是否存在于 props 中
       if (props && hasOwn(props, key)) {
         warn(
           `Method "${key}" has already been defined as a prop.`,
           vm
         )
       }
+
+      // 查看方法名称是否以 $ 或 _ 开头，如果是 warn 警告
+      // $ 或者 _ 开头的函数是 Vue 的私有函数
       if ((key in vm) && isReserved(key)) {
         warn(
           `Method "${key}" conflicts with an existing Vue instance method. ` +
@@ -286,6 +321,9 @@ function initMethods (vm: Component, methods: Object) {
         )
       }
     }
+
+    // 将 method 的方法注入到 Vue 的实例中
+    // bind 方法改变 methods[key] 中的 this 指向 vm
     vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm)
   }
 }
