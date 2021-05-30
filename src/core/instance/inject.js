@@ -6,7 +6,10 @@ import { defineReactive, toggleObserving } from '../observer/index'
 
 export function initProvide (vm: Component) {
   const provide = vm.$options.provide
+  // 将 provide 存储到 vm._provided 中
   if (provide) {
+    // 如果是函数，执行该函数，并将函数的 this 指向 vm
+    // 否则直接返回
     vm._provided = typeof provide === 'function'
       ? provide.call(vm)
       : provide
@@ -14,9 +17,11 @@ export function initProvide (vm: Component) {
 }
 
 export function initInjections (vm: Component) {
+  // 提取 inject 中存在的属性，且在 vm._provided 中也存在的属性 提取出来
   const result = resolveInject(vm.$options.inject, vm)
   if (result) {
     toggleObserving(false)
+    // 遍历这些属性，并且设置为响应式
     Object.keys(result).forEach(key => {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {

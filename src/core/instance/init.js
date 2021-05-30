@@ -75,16 +75,28 @@ export function initMixin (Vue: Class<Component>) {
     // $children, $parent, $root, $refs
     initLifecycle(vm)
 
-    // 初始化 监听事件 
+    // 初始化 监听事件
     // 父组件绑定在当前组件上的自定义事件
     initEvents(vm)
 
+    // 初始化 render 中的 h 函数
+    // 初始化了 $slots, $scopedSlots, _c, $createElement, $attrs, $listeners
     initRender(vm)
 
+    // 触发生命周期的钩子函数  beforeCreate
     callHook(vm, 'beforeCreate')
+
+    // 把 inject 注入到 vm
+    // initInjections 和 initProvide 实现依赖注入
     initInjections(vm) // resolve injections before data/props
+    
     initState(vm)
+
+    // 把 provide 注入到 vm
+    // 给 vm 挂载 _provide
     initProvide(vm) // resolve provide after data/props
+
+    // 触发生命周期的钩子函数  created
     callHook(vm, 'created')
 
     /* istanbul ignore if */
