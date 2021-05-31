@@ -40,18 +40,35 @@ export class Observer {
   vmCount: number; // number of vms that have this object as root $data
 
   constructor (value: any) {
+    // 观测对象
     this.value = value
+
+    // 数据依赖对象
     this.dep = new Dep()
+
+    // 计数器
     this.vmCount = 0
+
+    // 将实例挂载到 观察对象的 __ob__ 属性，且该属性不能被枚举。无须设置 getter 和 setter
     def(value, '__ob__', this)
+
+    // 是数组  数组的响应式处理
     if (Array.isArray(value)) {
-      if (hasProto) {
+      if (hasProto) {    // 有 __proto__ 属性
+        // arrayMethods = Array.prototype
+        // value.__proto__ = arrayMethods
         protoAugment(value, arrayMethods)
       } else {
+        // 遍历 arrayKeys , 将 arrayKeys 中的每一项都挂载到 value 上，且设置为不可枚举
+        // arrayKeys 是 Object.getOwnPropertyNames(arrayMethods)
+        // arrayKeys 是 js 原生数组的 属性和方法名
         copyAugment(value, arrayMethods, arrayKeys)
       }
+      // 为数组中的每一个对象创建一个 observer 实例
       this.observeArray(value)
     } else {
+      // 是对象
+      // 遍历对象的每一个属性，转换成 getter 和 setter
       this.walk(value)
     }
   }
@@ -62,8 +79,11 @@ export class Observer {
    * value type is Object.
    */
   walk (obj: Object) {
+    // 获取对象的每一个key
     const keys = Object.keys(obj)
+    // 遍历对象的key
     for (let i = 0; i < keys.length; i++) {
+      // 将每一项设置为响应式
       defineReactive(obj, keys[i])
     }
   }
@@ -72,7 +92,9 @@ export class Observer {
    * Observe a list of Array items.
    */
   observeArray (items: Array<any>) {
+    // 遍历数组的每一项
     for (let i = 0, l = items.length; i < l; i++) {
+      // 对数组的每一项做响应式处理
       observe(items[i])
     }
   }
@@ -107,23 +129,37 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * returns the new observer if successfully observed,
  * or the existing observer if the value already has one.
  */
+// 响应式处理函数
 export function observe (value: any, asRootData: ?boolean): Observer | void {
+  // 判断 value 是否是一个对象 或者是 VNode 的一个实例
+  // 如果是 直接返回，不需要做响应式处理
   if (!isObject(value) || value instanceof VNode) {
     return
   }
+
+  // Observer
   let ob: Observer | void
+
+  // 如果 value  有 __ob__ 属性，并且 value.__ob__ 是 Observer 的一个实例
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
+    // 给 ob  赋值
     ob = value.__ob__
   } else if (
     shouldObserve &&
     !isServerRendering() &&
-    (Array.isArray(value) || isPlainObject(value)) &&
+    (Array.isArray(value) || isPlainObject(value)) &&   // value 是数组或者是原生对象
     Object.isExtensible(value) &&
-    !value._isVue
+    !value._isVue   // value 是否是 Vue 的实例
   ) {
+    // 如果没有，则创建 else if 的条件是创建 ob 时对 value 的判断
+    // 创建一个 Observer 对象
+    // 将 value 中的所有属性设置为 setter getter
     ob = new Observer(value)
   }
+
+  // 如果是根数据
   if (asRootData && ob) {
+    // vmCount
     ob.vmCount++
   }
   return ob
@@ -132,6 +168,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 /**
  * Define a reactive property on an Object.
  */
+// TODO 数据响应式处理
 export function defineReactive (
   obj: Object,
   key: string,
@@ -142,6 +179,7 @@ export function defineReactive (
   const dep = new Dep()
 
   const property = Object.getOwnPropertyDescriptor(obj, key)
+  // 获取属性对象，如果不可枚举，直接返回
   if (property && property.configurable === false) {
     return
   }

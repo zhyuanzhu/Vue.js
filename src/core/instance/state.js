@@ -173,7 +173,7 @@ function initData (vm: Component) {
       // 判断是否以 _ 或者 $ 开头， 如果不是
       // 将 _data 注入到 vue 实例中
       // proxy 处理的结果为 访问 vm.key  实际访问的是 vm._data.key
-      // 将 data 中的 key 都挂载到 _data 上
+      // 将 data 中的 key 都挂载到 _data 上，注入 Vue 实例
       proxy(vm, `_data`, key)
     }
   }
