@@ -34,6 +34,7 @@ export function toggleObserving (value: boolean) {
  * object's property keys into getter/setters that
  * collect dependencies and dispatch updates.
  */
+// 将 对象转换成被观察的对象，并且将每个属性转换成 getter 和 setter
 export class Observer {
   value: any;
   dep: Dep;
@@ -168,7 +169,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 /**
  * Define a reactive property on an Object.
  */
-// TODO 数据响应式处理
+// 为对象定义响应式属性
 export function defineReactive (
   obj: Object,
   key: string,
@@ -176,10 +177,12 @@ export function defineReactive (
   customSetter?: ?Function,
   shallow?: boolean
 ) {
+  // 创建依赖对象
+  // 创建 当前对象的 watcher
   const dep = new Dep()
-
+  // 获取 obj 的属性描述符对象
   const property = Object.getOwnPropertyDescriptor(obj, key)
-  // 获取属性对象，如果不可枚举，直接返回
+  // 如果不可枚举，直接返回
   if (property && property.configurable === false) {
     return
   }
@@ -191,12 +194,16 @@ export function defineReactive (
     val = obj[key]
   }
 
+  // 判断是否递归观察子对象，并将子对象的属性都转换成 getter 和 setter，返回子观察对象
   let childOb = !shallow && observe(val)
+  // 把 obj 的 key 属性转换成 getter 和 setter
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
+      // 如果用户预定于的 getter 存在，则 value  等于 getter 调用的返回值
       const value = getter ? getter.call(obj) : val
+      // TODO
       if (Dep.target) {
         dep.depend()
         if (childOb) {
@@ -206,11 +213,15 @@ export function defineReactive (
           }
         }
       }
+      // 返回 value
       return value
     },
     set: function reactiveSetter (newVal) {
+      // getter 存在，返回 getter 的 返回值，否则是传入的 val
       const value = getter ? getter.call(obj) : val
       /* eslint-disable no-self-compare */
+      // 设置的新值和原始值相等，或者 新值是和原始值都是 NaN
+      // 不处理，直接 return
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }
@@ -219,13 +230,18 @@ export function defineReactive (
         customSetter()
       }
       // #7981: for accessor properties without setter
+      // 如果只存在 getter 不存在 setter 直接返回
       if (getter && !setter) return
       if (setter) {
+        // setter 存在，直接调用 setter, 将 setter 函数内部的 this 指向 obj
         setter.call(obj, newVal)
       } else {
+        // 直接将 新值 赋值给 val
         val = newVal
       }
+      // 如果新值是对象，观察子对象并返回子的 observer 对象
       childOb = !shallow && observe(newVal)
+      // 发布通知，数据已经更新了
       dep.notify()
     }
   })
