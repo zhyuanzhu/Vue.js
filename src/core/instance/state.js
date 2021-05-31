@@ -217,6 +217,8 @@ function initComputed (vm: Component, computed: Object) {
 
     if (!isSSR) {
       // create internal watcher for the computed property.
+      // 如果不是服务端渲染
+      // 将 key 添加至 _computedWatchers 中，并设置 观察者
       watchers[key] = new Watcher(
         vm,
         getter || noop,
@@ -228,9 +230,12 @@ function initComputed (vm: Component, computed: Object) {
     // component-defined computed properties are already defined on the
     // component prototype. We only need to define computed properties defined
     // at instantiation here.
+    // 如果 key 不在当前 vm 中
     if (!(key in vm)) {
       defineComputed(vm, key, userDef)
     } else if (process.env.NODE_ENV !== 'production') {
+      // 如果 key 在当前 vm 中
+      // 依次判断 key 是否存在于 data, props, methods 中，并给出相应的 warn 警告
       if (key in vm.$data) {
         warn(`The computed property "${key}" is already defined in data.`, vm)
       } else if (vm.$options.props && key in vm.$options.props) {
@@ -247,18 +252,26 @@ export function defineComputed (
   key: string,
   userDef: Object | Function
 ) {
+  // 判断是否是 SSR
   const shouldCache = !isServerRendering()
+
+  // 传入的是 函数
+  // computed 中的属性值是一个函数
   if (typeof userDef === 'function') {
+    // 浏览器环境 给 Object.defineProperty 的第三个参数设置 getter
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
       : createGetterInvoker(userDef)
     sharedPropertyDefinition.set = noop
   } else {
+    // 如果 computed 的属性值是对象，
+    // 如果存在 getter
     sharedPropertyDefinition.get = userDef.get
-      ? shouldCache && userDef.cache !== false
-        ? createComputedGetter(key)
-        : createGetterInvoker(userDef.get)
-      : noop
+      ? shouldCache && userDef.cache !== false        // 不是服务端渲染    且传入的对象的 cache 属性不是 false
+        ? createComputedGetter(key)                   // 给该 key 创建一个
+        : createGetterInvoker(userDef.get)            // 调用传入对象的 get 函数，并把返回值赋值给 sharedPropertyDefinition 的 getter
+      : noop     // 不存在返回一个空函数
+    // 设置 setter
     sharedPropertyDefinition.set = userDef.set || noop
   }
   if (process.env.NODE_ENV !== 'production' &&
@@ -270,16 +283,23 @@ export function defineComputed (
       )
     }
   }
+  // 将 key 挂载到 vm 上，并且设置对应的 getter 和 setter
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
 function createComputedGetter (key) {
   return function computedGetter () {
+    // _computedWatchers 在 initComputed 中初始化
+    // 查看 _computedWatchers 是否存在，且 当前 key 是否存在于 _computedWatchers 中
     const watcher = this._computedWatchers && this._computedWatchers[key]
+
+    // 当前 key 存在于 this._computedWatchers 中
     if (watcher) {
+      // watcher.dirty 是什么意思？ 脏检查？
       if (watcher.dirty) {
         watcher.evaluate()
       }
+      // 依赖收集？
       if (Dep.target) {
         watcher.depend()
       }
