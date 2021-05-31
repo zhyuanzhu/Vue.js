@@ -69,12 +69,12 @@ export function initState (vm: Component) {
     observe(vm._data = {}, true /* asRootData */)
   }
 
-  /** TODO */
   // 初始化 computed
   if (opts.computed) initComputed(vm, opts.computed)
 
   // 初始化 watch
   if (opts.watch && opts.watch !== nativeWatch) {
+    // 传入 $options.watch 对象
     initWatch(vm, opts.watch)
   }
 }
@@ -198,9 +198,9 @@ export function getData (data: Function, vm: Component): any {
 
 const computedWatcherOptions = { lazy: true }
 
-// TODO
 function initComputed (vm: Component, computed: Object) {
   // $flow-disable-line
+  // 给 当前组件 挂载 _computedWatchers 属性，并赋值为空对象
   const watchers = vm._computedWatchers = Object.create(null)
   // computed properties are just getters during SSR
   const isSSR = isServerRendering()
@@ -219,6 +219,7 @@ function initComputed (vm: Component, computed: Object) {
       // create internal watcher for the computed property.
       // 如果不是服务端渲染
       // 将 key 添加至 _computedWatchers 中，并设置 观察者
+      // TODO  Watcher 构造函数   后续分析
       watchers[key] = new Watcher(
         vm,
         getter || noop,
@@ -350,12 +351,16 @@ function initMethods (vm: Component, methods: Object) {
   }
 }
 
-// TODO
 function initWatch (vm: Component, watch: Object) {
+  // 遍历 watch 对象
   for (const key in watch) {
+    // 存储 watch 对象中 的属性值
     const handler = watch[key]
+    // 如果是数组
     if (Array.isArray(handler)) {
+      // 遍历数组中的每一项
       for (let i = 0; i < handler.length; i++) {
+        // 给每一项创建一个 Watcher
         createWatcher(vm, key, handler[i])
       }
     } else {
@@ -370,11 +375,16 @@ function createWatcher (
   handler: any,
   options?: Object
 ) {
+  // handler 是一个基础对象
   if (isPlainObject(handler)) {
+    // 给 options 参数赋值为 handler
     options = handler
+    // handler 设置为传入的对象中真正的处理函数
     handler = handler.handler
   }
+  // 如果 是字符串
   if (typeof handler === 'string') {
+    // 将 handler 赋值为组件中对应的函数
     handler = vm[handler]
   }
   return vm.$watch(expOrFn, handler, options)
@@ -416,13 +426,18 @@ export function stateMixin (Vue: Class<Component>) {
     options?: Object
   ): Function {
     const vm: Component = this
+    // 如果 cb 是一个普通对象
     if (isPlainObject(cb)) {
+      // 处理cb
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
     options.user = true
+    // TODO Watcher
     const watcher = new Watcher(vm, expOrFn, cb, options)
+    // 是否含有属性 immediate , 立即执行 watcher
     if (options.immediate) {
+      // TODO
       const info = `callback for immediate watcher "${watcher.expression}"`
       pushTarget()
       invokeWithErrorHandling(cb, vm, [watcher.value], vm, info)
