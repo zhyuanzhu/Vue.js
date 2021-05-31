@@ -127,10 +127,15 @@ export default class Watcher {
    * Add a dependency to this directive.
    */
   addDep (dep: Dep) {
+    // 获取 dep 的 id， dep 的唯一标识
     const id = dep.id
+    // this.newDepIds 存在 不存在 id
     if (!this.newDepIds.has(id)) {
+      // 将 id 添加进去
       this.newDepIds.add(id)
+      // 将 dep push 进 this.newDeps
       this.newDeps.push(dep)
+      // 如果 this.depIds 不存在 中不存在 id
       if (!this.depIds.has(id)) {
         dep.addSub(this)
       }

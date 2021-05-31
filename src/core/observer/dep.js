@@ -11,16 +11,22 @@ let uid = 0
  * directives subscribing to it.
  */
 export default class Dep {
+  // Dep 类的静态属性 target, 是一个 Watcher
   static target: ?Watcher;
+  // id 递增的数值，唯一标识
   id: number;
+  // 存储 Watcher 的数组
   subs: Array<Watcher>;
 
   constructor () {
+    // 每次 new Dep uid++
     this.id = uid++
+    // 初始化容器为 []
     this.subs = []
   }
 
   addSub (sub: Watcher) {
+    // 往容器中添加 watcher
     this.subs.push(sub)
   }
 
@@ -29,8 +35,11 @@ export default class Dep {
   }
 
   depend () {
+    // 如果 Dep.target 存在
     if (Dep.target) {
+      // 相当于 Watcher.addDep(this)
       Dep.target.addDep(this)
+      // 处理后调用 dep.addSub(Watcher)
     }
   }
 
@@ -56,7 +65,9 @@ Dep.target = null
 const targetStack = []
 
 export function pushTarget (target: ?Watcher) {
+  // 存入 栈
   targetStack.push(target)
+  // 给 Dep.target 赋值
   Dep.target = target
 }
 

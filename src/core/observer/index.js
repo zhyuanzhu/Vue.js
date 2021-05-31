@@ -179,6 +179,7 @@ export function defineReactive (
 ) {
   // 创建依赖对象
   // 创建 当前对象的 watcher
+  // 负责收集每一个属性的 依赖
   const dep = new Dep()
   // 获取 obj 的属性描述符对象
   const property = Object.getOwnPropertyDescriptor(obj, key)
@@ -200,14 +201,21 @@ export function defineReactive (
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
+    // 访问属性的时候，收集依赖
     get: function reactiveGetter () {
       // 如果用户预定于的 getter 存在，则 value  等于 getter 调用的返回值
       const value = getter ? getter.call(obj) : val
-      // TODO
-      if (Dep.target) {
+      // 如果存在当前的依赖目标，则建议依赖收集关系
+      // 在 _init 方法
+      if (Dep.target) {     /** Dep.target 即 watcher 对象 */
+        // 调用收集依赖对象的 depend 方法添加依赖
         dep.depend()
+        // 如果子观察对象存在，
         if (childOb) {
+          // 建立子对象的依赖收集关系
+          // childOb.dep 为当前子对象收集依赖
           childOb.dep.depend()
+          // 如果属性是数组
           if (Array.isArray(value)) {
             dependArray(value)
           }
