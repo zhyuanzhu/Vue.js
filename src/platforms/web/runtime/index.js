@@ -45,7 +45,7 @@ Vue.prototype.$mount = function (
 ): Component {
   el = el && inBrowser ? query(el) : undefined
   // 返回一个方法
-  // 后续查看
+  // TODO 后续查看
   return mountComponent(this, el, hydrating)
 }
 

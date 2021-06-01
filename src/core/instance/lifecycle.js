@@ -153,12 +153,18 @@ export function mountComponent (
   hydrating?: boolean
 ): Component {
   vm.$el = el
+  // 查看是否有 render 函数
+  // 如果没有
   if (!vm.$options.render) {
+    // 给 render 赋值为 创建一个空的 VNode
     vm.$options.render = createEmptyVNode
+    // 开发环境
     if (process.env.NODE_ENV !== 'production') {
       /* istanbul ignore if */
+      // $options 中有 template 且 template 的第一个字符串不是 # 或者 el 存在
       if ((vm.$options.template && vm.$options.template.charAt(0) !== '#') ||
         vm.$options.el || el) {
+        // 爆出警告，使用错了版本，runtime-only 版本不支持使用template 形式
         warn(
           'You are using the runtime-only build of Vue where the template ' +
           'compiler is not available. Either pre-compile the templates into ' +
@@ -166,6 +172,7 @@ export function mountComponent (
           vm
         )
       } else {
+        // 爆出警告 组件 mount 失败， template 或者 render 函数没有定义
         warn(
           'Failed to mount component: template or render function not defined.',
           vm
@@ -173,10 +180,12 @@ export function mountComponent (
       }
     }
   }
+  // 调用 beforeMount 生命周期钩子函数
   callHook(vm, 'beforeMount')
 
   let updateComponent
   /* istanbul ignore if */
+  // 开发环境开启了性能统计
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
     updateComponent = () => {
       const name = vm._name
@@ -195,7 +204,10 @@ export function mountComponent (
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
+    // updateComponent 赋值为函数，内部调用 _update 方法
     updateComponent = () => {
+      // TODO _update 方法， _render 方法返回一个 VNode
+      // _update 方法主要执行了 __patch__
       vm._update(vm._render(), hydrating)
     }
   }
