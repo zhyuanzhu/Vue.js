@@ -34,7 +34,7 @@ Vue.prototype.$mount = function (
     return this
   }
 
-  // 获取 Vue 的 $options 属性
+  // 获取 Vue 实例的 $options 属性
   // 对于 $options 属性应该来源于 从 是 './runtime/index' 导入的 Vue 实例，后续追踪这个来源的 Vue
   const options = this.$options
   // resolve template/el and convert to render function

@@ -17,7 +17,7 @@ export function initMixin (Vue: Class<Component>) {
   // 合并 options
   // 初始化的一些操作
   Vue.prototype._init = function (options?: Object) {
-    // 缓存 this , 即 Vue
+    // 缓存 this , 即 Vue 的实例
     const vm: Component = this
     // a uid
     // _uid 递增
