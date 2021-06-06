@@ -69,8 +69,13 @@ if (inBrowser && !isIE) {
  * Flush both queues and run the watchers.
  */
 function flushSchedulerQueue () {
+
   currentFlushTimestamp = getNow()
+
+  // 正在处理 watcher 队列
   flushing = true
+
+
   let watcher, id
 
   // Sort queue before flush.
@@ -83,15 +88,18 @@ function flushSchedulerQueue () {
   //    its watchers can be skipped.
   queue.sort((a, b) => a.id - b.id)
 
-  // do not cache length because more watchers might be pushed
+  // do not cache length because more watchers might be pushed 不要缓存 length，有可能会动态添加
   // as we run existing watchers
+  // 遍历所有 watcher
   for (index = 0; index < queue.length; index++) {
     watcher = queue[index]
+    // 渲染 watcher 才有
     if (watcher.before) {
       watcher.before()
     }
     id = watcher.id
     has[id] = null
+
     watcher.run()
     // in dev build, check and stop circular updates.
     if (process.env.NODE_ENV !== 'production' && has[id] != null) {
@@ -111,7 +119,9 @@ function flushSchedulerQueue () {
   }
 
   // keep copies of post queues before resetting state
+  // 浅拷贝 activatedChildren
   const activatedQueue = activatedChildren.slice()
+  // 浅拷贝 queue
   const updatedQueue = queue.slice()
 
   resetSchedulerState()
@@ -187,6 +197,7 @@ export function queueWatcher (watcher: Watcher) {
         flushSchedulerQueue()
         return
       }
+      // TODO nextTick
       nextTick(flushSchedulerQueue)
     }
   }

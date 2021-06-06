@@ -204,6 +204,8 @@ export default class Watcher {
    */
   run () {
     if (this.active) {
+      // 渲染 watcher 和用户watcher
+      // 渲染 watcher value = undefined
       const value = this.get()
       if (
         value !== this.value ||
@@ -220,6 +222,7 @@ export default class Watcher {
           const info = `callback for watcher "${this.expression}"`
           invokeWithErrorHandling(this.cb, this.vm, [value, oldValue], this.vm, info)
         } else {
+          // 渲染 watcher 的 cb 是 noop 空函数
           this.cb.call(this.vm, value, oldValue)
         }
       }
