@@ -43,6 +43,7 @@ export default class Dep {
     }
   }
 
+  // 数据更新
   notify () {
     // stabilize the subscriber list first
     const subs = this.subs.slice()
@@ -50,8 +51,10 @@ export default class Dep {
       // subs aren't sorted in scheduler if not running async
       // we need to sort them now to make sure they fire in correct
       // order
+      // 按照 watcher 的 id 从小到大，即 watcher 的创建顺序
       subs.sort((a, b) => a.id - b.id)
     }
+    // 调用每个 watcher 的 update 方法
     for (let i = 0, l = subs.length; i < l; i++) {
       subs[i].update()
     }

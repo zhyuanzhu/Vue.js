@@ -162,9 +162,12 @@ function callActivatedHooks (queue) {
  * pushed when the queue is being flushed.
  */
 export function queueWatcher (watcher: Watcher) {
+  // 获取 id
   const id = watcher.id
+  // 查看 watcher 对象是否已经被处理，防止重复处理
   if (has[id] == null) {
     has[id] = true
+    // watcher 是否正在被处理
     if (!flushing) {
       queue.push(watcher)
     } else {

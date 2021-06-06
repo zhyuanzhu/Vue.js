@@ -51,11 +51,14 @@ export default class Watcher {
     isRenderWatcher?: boolean
   ) {
     this.vm = vm
+    // 判断是否是渲染 wathcer
     if (isRenderWatcher) {
       vm._watcher = this
     }
+    // 存储的是所有的 watcher ， 包括用户 写的和 渲染 watcher   、computed
     vm._watchers.push(this)
     // options
+    // 用户 watcher
     if (options) {
       this.deep = !!options.deep
       this.user = !!options.user
@@ -69,10 +72,15 @@ export default class Watcher {
     this.id = ++uid // uid for batching
     this.active = true
     this.dirty = this.lazy // for lazy watchers
+    /**
+     * 用来记录 dep 相关
+     * @type {*[]}
+     */
     this.deps = []
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
+
     this.expression = process.env.NODE_ENV !== 'production'
       ? expOrFn.toString()
       : ''
@@ -80,6 +88,8 @@ export default class Watcher {
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
+      // expOrFn 是字符串
+      // 例如 watcher: { 'person.name': function () {} }
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop
@@ -91,6 +101,8 @@ export default class Watcher {
         )
       }
     }
+    // 如果是计算属性，lazy 是 true
+    // 其他是 false
     this.value = this.lazy
       ? undefined
       : this.get()
@@ -100,6 +112,9 @@ export default class Watcher {
    * Evaluate the getter, and re-collect dependencies.
    */
   get () {
+    // 把当前的 watcher 保存到栈
+    // 并且给 Dep.target = target
+    // 为了处理父子组件嵌套
     pushTarget(this)
     let value
     const vm = this.vm
@@ -114,10 +129,14 @@ export default class Watcher {
     } finally {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
+
       if (this.deep) {
         traverse(value)
       }
+
+      // 弹出栈
       popTarget()
+      // TODO
       this.cleanupDeps()
     }
     return value
@@ -169,6 +188,7 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
+
     if (this.lazy) {
       this.dirty = true
     } else if (this.sync) {
