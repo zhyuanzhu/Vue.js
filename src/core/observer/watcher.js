@@ -61,7 +61,7 @@ export default class Watcher {
     // 用户 watcher
     if (options) {
       this.deep = !!options.deep
-      this.user = !!options.user
+      this.user = !!options.user      // 用户 watcher 是 true
       this.lazy = !!options.lazy
       this.sync = !!options.sync
       this.before = options.before

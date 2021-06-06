@@ -11,10 +11,15 @@ const callbacks = []
 let pending = false
 
 function flushCallbacks () {
+  // 处理结束了
   pending = false
+  // 浅拷贝 callbacks
   const copies = callbacks.slice(0)
+  // 清空 callbacks
   callbacks.length = 0
+  // 遍历 copies
   for (let i = 0; i < copies.length; i++) {
+    // 调用 copies 的每一项
     copies[i]()
   }
 }
@@ -83,10 +88,12 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
     setTimeout(flushCallbacks, 0)
   }
 }
-
+// 异步更新队列函数
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
+  // 把 cb 上加入异常处理 存入 callbacks 数组中
   callbacks.push(() => {
+    // cb  函数传入了
     if (cb) {
       try {
         cb.call(ctx)
@@ -97,8 +104,11 @@ export function nextTick (cb?: Function, ctx?: Object) {
       _resolve(ctx)
     }
   })
+  // 判断队列是否正在处理
   if (!pending) {
     pending = true
+    // TODO
+    // 判断使用那种来处理回调函数
     timerFunc()
   }
   // $flow-disable-line

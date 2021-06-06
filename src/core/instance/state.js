@@ -220,11 +220,12 @@ function initComputed (vm: Component, computed: Object) {
       // 如果不是服务端渲染
       // 将 key 添加至 _computedWatchers 中，并设置 观察者
       // TODO  Watcher 构造函数   后续分析
+      // 计算属性 设置 watcher 的 lazy true
       watchers[key] = new Watcher(
         vm,
         getter || noop,
         noop,
-        computedWatcherOptions
+        computedWatcherOptions     // { lazy: true }
       )
     }
 
@@ -378,13 +379,14 @@ function createWatcher (
   // handler 是一个基础对象
   if (isPlainObject(handler)) {
     // 给 options 参数赋值为 handler
+    // {user: handler () {}, deep: true}
     options = handler
     // handler 设置为传入的对象中真正的处理函数
     handler = handler.handler
   }
   // 如果 是字符串
   if (typeof handler === 'string') {
-    // 将 handler 赋值为组件中对应的函数
+    // 将 handler 赋值为组件中对应的函数，即 methods 中对应的方法
     handler = vm[handler]
   }
   return vm.$watch(expOrFn, handler, options)
@@ -420,6 +422,7 @@ export function stateMixin (Vue: Class<Component>) {
   Vue.prototype.$delete = del
 
   // 设置 $watch
+  // 用户 Watcher
   Vue.prototype.$watch = function (
     expOrFn: string | Function,
     cb: any,
@@ -428,16 +431,19 @@ export function stateMixin (Vue: Class<Component>) {
     const vm: Component = this
     // 如果 cb 是一个普通对象
     if (isPlainObject(cb)) {
-      // 处理cb
+      // 对象执行 createWatcher
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
+    // 标记为 用户 watcher
     options.user = true
     // TODO Watcher
+    // 创建 watcher 对象
     const watcher = new Watcher(vm, expOrFn, cb, options)
     // 是否含有属性 immediate , 立即执行 watcher
     if (options.immediate) {
       // TODO
+      // 设置了 immediate 立即执行回调函数
       const info = `callback for immediate watcher "${watcher.expression}"`
       pushTarget()
       invokeWithErrorHandling(cb, vm, [watcher.value], vm, info)
