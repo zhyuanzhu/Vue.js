@@ -260,22 +260,31 @@ export function defineReactive (
  * triggers change notification if the property doesn't
  * already exist.
  */
+// 动态设置属性
 export function set (target: Array<any> | Object, key: any, val: any): any {
   if (process.env.NODE_ENV !== 'production' &&
-    (isUndef(target) || isPrimitive(target))
+    (isUndef(target) || isPrimitive(target))   // undefined 或者是 原始值
   ) {
     warn(`Cannot set reactive property on undefined, null, or primitive value: ${(target: any)}`)
   }
+  // 判断 target 是否是数组， key 是否是合法的数组索引
   if (Array.isArray(target) && isValidArrayIndex(key)) {
+    // 判断 key 和 数组的 length 谁大，并将最大值设置为 数组的长度
     target.length = Math.max(target.length, key)
+    // 通过 splice 方法对 key 位置的元素进行替换
+    // 对数组，set 实际调用了处理后对 splice 方法
     target.splice(key, 1, val)
     return val
   }
+  // 判断 key 在对象中已经存在且不存在于原型中
   if (key in target && !(key in Object.prototype)) {
+    // 不做响应式处理，直接赋值
     target[key] = val
     return val
   }
+  // 获取 target 中对 observer 对象
   const ob = (target: any).__ob__
+  // target 是 Vue 实例或者 $data 直接返回
   if (target._isVue || (ob && ob.vmCount)) {
     process.env.NODE_ENV !== 'production' && warn(
       'Avoid adding reactive properties to a Vue instance or its root $data ' +
@@ -283,11 +292,15 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     )
     return val
   }
+
+  // 如果 ob 不存在，target 不是响应式对象直接赋值
   if (!ob) {
     target[key] = val
     return val
   }
+  // 把 key 设置为响应式属性
   defineReactive(ob.value, key, val)
+  // 发送通知
   ob.dep.notify()
   return val
 }
