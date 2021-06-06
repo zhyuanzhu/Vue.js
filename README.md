@@ -28,7 +28,10 @@
 
 - `_init` 方法 `initProxy` 中，查看 `vm.render._withStripped`, 其中这个 `_withStripped` 这个属性是什么时候挂载的？
 
+### 响应式处理过程
 
+_init() ---> initState() ---> initData() ---> observe(value) 
+---> 创建 Observer 对象 ---> defineReactive ---> 依赖收集 ---> Watcher
 
 
 
