@@ -271,6 +271,7 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
  * Validate component names
  */
 function checkComponents (options: Object) {
+  // 遍历 options.components
   for (const key in options.components) {
     validateComponentName(key)
   }
@@ -296,25 +297,49 @@ export function validateComponentName (name: string) {
  * Object-based format.
  */
 function normalizeProps (options: Object, vm: ?Component) {
+  // 获取 options 中的 props
   const props = options.props
+  // props 不存在直接 return
   if (!props) return
   const res = {}
   let i, val, name
+  // 如果 props 是一个数组
   if (Array.isArray(props)) {
+    // props: [name, age, hobby]
     i = props.length
+    // 遍历数组中的每一项
     while (i--) {
+      // 给 val 赋值为当前项
       val = props[i]
+      // 如果当前项是字符串
       if (typeof val === 'string') {
+        // 将 a-b 转成驼峰 aB
         name = camelize(val)
+        // 组装 res 数据格式
         res[name] = { type: null }
+        /**
+         * res = {
+         *   aB: {type: null}
+         *  }
+         */
       } else if (process.env.NODE_ENV !== 'production') {
         warn('props must be strings when using array syntax.')
       }
     }
   } else if (isPlainObject(props)) {
+    // 如果 props 是一个对象
+    // props: { count ... }
+    /**
+     * count: {
+     *   type: Number,
+     *   default: 1
+     * }
+     */
     for (const key in props) {
       val = props[key]
       name = camelize(key)
+      // val 是对象的话直接返回
+      // 否则处理为 count: { type: 1 }
       res[name] = isPlainObject(val)
         ? val
         : { type: val }
@@ -326,6 +351,7 @@ function normalizeProps (options: Object, vm: ?Component) {
       vm
     )
   }
+  // 给 重新赋值 options 的 props 属性为格式化之后的对象
   options.props = res
 }
 
@@ -391,13 +417,16 @@ export function mergeOptions (
   vm?: Component
 ): Object {
   if (process.env.NODE_ENV !== 'production') {
+    // 检查子组件的组件名称
     checkComponents(child)
   }
 
+  // 如果子组件是函数式组件
   if (typeof child === 'function') {
     child = child.options
   }
 
+  // 标准化处理 Props
   normalizeProps(child, vm)
   normalizeInject(child, vm)
   normalizeDirectives(child)
