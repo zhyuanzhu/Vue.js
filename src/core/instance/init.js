@@ -142,39 +142,60 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   }
 }
 
+// 处理构造函数的 options
 export function resolveConstructorOptions (Ctor: Class<Component>) {
+  // 缓存 options 即 Vue.options
   let options = Ctor.options
+  // 如果是子组件
+  // super 与 Vue.extend 有关
   if (Ctor.super) {
+    // 递归调用处理当前组件的父组件
     const superOptions = resolveConstructorOptions(Ctor.super)
+    // 获取 当前组件的 superOptions 属性，并缓存起来
     const cachedSuperOptions = Ctor.superOptions
+    // 查看当前父组件的 options 是否和当前组件存储的 superOptions 相等
     if (superOptions !== cachedSuperOptions) {
+      // 不相当，说明当前父组件改变了
       // super option changed,
       // need to resolve new options.
+      // 给当前组件挂载 superOptions 属性，使其等于 superOptions
       Ctor.superOptions = superOptions
       // check if there are any late-modified/attached options (#4976)
+
+      // 返回 undefined 或者 存储了修改值的对象
       const modifiedOptions = resolveModifiedOptions(Ctor)
       // update base extend options
       if (modifiedOptions) {
+        // 将 modifiedOptions 上的属性合并到 当前组件的 extendOptions 属性上
         extend(Ctor.extendOptions, modifiedOptions)
       }
+      // TODO   mergeOptions 方法
       options = Ctor.options = mergeOptions(superOptions, Ctor.extendOptions)
       if (options.name) {
         options.components[options.name] = Ctor
       }
     }
   }
+
   return options
 }
 
 function resolveModifiedOptions (Ctor: Class<Component>): ?Object {
   let modified
+  // 获取当前组件的 options 属性
   const latest = Ctor.options
+  // 获取当前组件的 sealedOptions 属性
+  // TODO     sealedOptions 什么时候挂载的
   const sealed = Ctor.sealedOptions
   for (const key in latest) {
+    // 如果 options 中的属性值与 sealedOptions 中相同的属性对应的值不相等
     if (latest[key] !== sealed[key]) {
       if (!modified) modified = {}
+      // 将不相同的 key 作为属性， options 中对应的值作为值挂载到 modified 上
       modified[key] = latest[key]
     }
   }
+  // 如果组件的 options 与 sealedOptions 中属性的值都相同，则 返回 undefined
+  // 否则返回一个对象，
   return modified
 }

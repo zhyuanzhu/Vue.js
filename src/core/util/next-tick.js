@@ -44,6 +44,7 @@ let timerFunc
 // completely stops working after triggering a few times... so, if native
 // Promise is available, we will use it:
 /* istanbul ignore next, $flow-disable-line */
+// 如果支持 Promise
 if (typeof Promise !== 'undefined' && isNative(Promise)) {
   const p = Promise.resolve()
   timerFunc = () => {
@@ -55,6 +56,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
     // "force" the microtask queue to be flushed by adding an empty timer.
     if (isIOS) setTimeout(noop)
   }
+  // 微任务标识为 true
   isUsingMicroTask = true
 } else if (!isIE && typeof MutationObserver !== 'undefined' && (
   isNative(MutationObserver) ||
@@ -76,6 +78,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
   }
   isUsingMicroTask = true
 } else if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
+  // 支持 immediate    node.js 环境或者 ie 10,11
   // Fallback to setImmediate.
   // Technically it leverages the (macro) task queue,
   // but it is still a better choice than setTimeout.
@@ -84,6 +87,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
   }
 } else {
   // Fallback to setTimeout.
+  // 使用 setTimeout
   timerFunc = () => {
     setTimeout(flushCallbacks, 0)
   }
