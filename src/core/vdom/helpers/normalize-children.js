@@ -18,6 +18,7 @@ import { isFalse, isTrue, isDef, isUndef, isPrimitive } from 'shared/util'
 export function simpleNormalizeChildren (children: any) {
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
+      // 利用 concat 把 children 转换成一维数组
       return Array.prototype.concat.apply([], children)
     }
   }
@@ -32,7 +33,7 @@ export function normalizeChildren (children: any): ?Array<VNode> {
   return isPrimitive(children)
     ? [createTextVNode(children)]
     : Array.isArray(children)
-      ? normalizeArrayChildren(children)
+      ? normalizeArrayChildren(children)     // 递归处理数组
       : undefined
 }
 

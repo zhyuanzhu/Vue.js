@@ -339,7 +339,7 @@ function normalizeProps (options: Object, vm: ?Component) {
       val = props[key]
       name = camelize(key)
       // val 是对象的话直接返回
-      // 否则处理为 count: { type: 1 }
+      // bool: Boolean   ----> 处理后 bool: {type: Boolean}
       res[name] = isPlainObject(val)
         ? val
         : { type: val }
@@ -352,6 +352,22 @@ function normalizeProps (options: Object, vm: ?Component) {
     )
   }
   // 给 重新赋值 options 的 props 属性为格式化之后的对象
+  // 处理后的格式为
+  /**
+   * props = {
+   *   count: {
+   *     type: Number,
+   *     default: 2
+   *   },
+   *   str: {
+   *     type: null
+   *   },
+   *   bool: {
+   *     type: Boolean
+   *   }
+   * }
+   *
+   */
   options.props = res
 }
 
@@ -359,11 +375,17 @@ function normalizeProps (options: Object, vm: ?Component) {
  * Normalize all injections into Object-based format
  */
 function normalizeInject (options: Object, vm: ?Component) {
+  // 获取 options 中的 inject
   const inject = options.inject
+  // inject 不存在，直接 return 返回
   if (!inject) return
+  // 重写了 options 中的 inject 属性，并赋值为一个空对象，将 normalized 指向相同的空对象
   const normalized = options.inject = {}
+  // 如果 inject 是一个数组
   if (Array.isArray(inject)) {
+    // 遍历数组
     for (let i = 0; i < inject.length; i++) {
+      // 格式化 normalized
       normalized[inject[i]] = { from: inject[i] }
     }
   } else if (isPlainObject(inject)) {
@@ -428,6 +450,8 @@ export function mergeOptions (
 
   // 标准化处理 Props
   normalizeProps(child, vm)
+
+  // 标准化处理 inject
   normalizeInject(child, vm)
   normalizeDirectives(child)
 

@@ -33,11 +33,14 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
+  // 判断 data 是数组或者原始值
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data
     data = undefined
   }
+
+  // alwaysNormalize 用户传入的 render 函数
   if (isTrue(alwaysNormalize)) {
     normalizationType = ALWAYS_NORMALIZE
   }
@@ -51,15 +54,19 @@ export function _createElement (
   children?: any,
   normalizationType?: number
 ): VNode | Array<VNode> {
+  // data  不为 undefined 且 data 是响应式
   if (isDef(data) && isDef((data: any).__ob__)) {
     process.env.NODE_ENV !== 'production' && warn(
       `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
       'Always create fresh vnode data objects in each render!',
       context
     )
+    // 报出警告并且返回一个空 VNode 节点
     return createEmptyVNode()
   }
   // object syntax in v-bind
+  // <component v-bind:is="TabComponent"></component>
+  // 如果 存在 is  属性
   if (isDef(data) && isDef(data.is)) {
     tag = data.is
   }
@@ -68,9 +75,11 @@ export function _createElement (
     return createEmptyVNode()
   }
   // warn against non-primitive key
+  // key 存在并且不是原始值
   if (process.env.NODE_ENV !== 'production' &&
     isDef(data) && isDef(data.key) && !isPrimitive(data.key)
   ) {
+    // 报出警告提示 key 尽量使用原始值 string 或者 number
     if (!__WEEX__ || !('@binding' in data.key)) {
       warn(
         'Avoid using non-primitive value as key, ' +
@@ -87,15 +96,20 @@ export function _createElement (
     data.scopedSlots = { default: children[0] }
     children.length = 0
   }
+  // 是用户传入的 render 函数
   if (normalizationType === ALWAYS_NORMALIZE) {
+    //
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
+    // TODO
     children = simpleNormalizeChildren(children)
   }
+  // TODO
   let vnode, ns
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
+    // 是否是 html 中的保留标签
     if (config.isReservedTag(tag)) {
       // platform built-in elements
       if (process.env.NODE_ENV !== 'production' && isDef(data) && isDef(data.nativeOn) && data.tag !== 'component') {
@@ -122,6 +136,7 @@ export function _createElement (
     }
   } else {
     // direct component options / constructor
+    // 不是字符串就是组件
     vnode = createComponent(tag, data, context, children)
   }
   if (Array.isArray(vnode)) {

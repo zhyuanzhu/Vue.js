@@ -73,6 +73,7 @@ export function renderMixin (Vue: Class<Component>) {
 
   Vue.prototype._render = function (): VNode {
     const vm: Component = this
+    // 获取用户传入的 render 或者模版编译的
     const { render, _parentVnode } = vm.$options
 
     if (_parentVnode) {

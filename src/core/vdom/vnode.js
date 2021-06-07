@@ -72,8 +72,11 @@ export default class VNode {
 }
 
 export const createEmptyVNode = (text: string = '') => {
+  // 生成 VNode 实例
   const node = new VNode()
+  // 给 node 实例添加 text 属性，值为传入的 text
   node.text = text
+  // 设置 isComment 属性是 true
   node.isComment = true
   return node
 }
