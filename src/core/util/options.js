@@ -101,6 +101,7 @@ function mergeData (to: Object, from: ?Object): Object {
     ) {
       mergeData(toVal, fromVal)
     }
+    // 如果不满足上述条件，则什么都不需要处理
   }
   return to
 }
@@ -193,21 +194,24 @@ function mergeHook (
   parentVal: ?Array<Function>,
   childVal: ?Function | ?Array<Function>
 ): ?Array<Function> {
-  const res = childVal
-    ? parentVal
+  const res = childVal     // childVal 如果存在，去判断 parentVal
+    ? parentVal       // childVal 且 parentVal 存在，将 parentVal 与 childVal 合并成一个数组
       ? parentVal.concat(childVal)
-      : Array.isArray(childVal)
-        ? childVal
-        : [childVal]
-    : parentVal
+      : Array.isArray(childVal)    // childVal 且 parentVal 不存在，判断 childVal 是否是数组
+        ? childVal    // 是数组的话直接返回
+        : [childVal]  // 不是数组，修改成数组
+    : parentVal   // childVal 不存在，直接返回 parentVal
+  // 查看 res 是否存在
   return res
-    ? dedupeHooks(res)
+    ? dedupeHooks(res)    // 存在，对 res 去重，    TODO 去重的意义？？？？
     : res
 }
 
 function dedupeHooks (hooks) {
   const res = []
+  // 遍历传入的hooks
   for (let i = 0; i < hooks.length; i++) {
+    // 查看 每一项是否在 res 中存在，如果不存在，则 push 进 res
     if (res.indexOf(hooks[i]) === -1) {
       res.push(hooks[i])
     }
@@ -215,7 +219,10 @@ function dedupeHooks (hooks) {
   return res
 }
 
+// 生命周期策略
+// 遍历生命周期钩子函数名称数组
 LIFECYCLE_HOOKS.forEach(hook => {
+  // 给每一个生命周期函数绑定对应的策略合并函数
   strats[hook] = mergeHook
 })
 
