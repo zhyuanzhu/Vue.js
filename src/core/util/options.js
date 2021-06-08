@@ -233,22 +233,33 @@ LIFECYCLE_HOOKS.forEach(hook => {
  * a three-way merge between constructor options, instance
  * options and parent options.
  */
+
+// 第一次初始化的时候 parentVal 是 {KeepAlive, Transition, TransitionGroup}
+// 所以在每个组件中都可以使用这三 component
 function mergeAssets (
   parentVal: ?Object,
   childVal: ?Object,
   vm?: Component,
   key: string
 ): Object {
+  // 创建一个对象，如果 parentVal 存在，则该对象的原型指向 parentVal，否则创建一个没原型的空对象
   const res = Object.create(parentVal || null)
+  // childVal 如果存在
   if (childVal) {
+    // 如果是开发环境 则执行  assertObjectType 检查 childVal 是否是一个纯对象，如果不是报出警告
     process.env.NODE_ENV !== 'production' && assertObjectType(key, childVal, vm)
+    // 将 childVal 合并到 res 上并返回
     return extend(res, childVal)
   } else {
+    // 不存在直接返回 res 对象
     return res
   }
 }
 
+// 资源选项的合并策略
+// 遍历 [component, directive, filter]
 ASSET_TYPES.forEach(function (type) {
+  // 给每一项添加对应的策略合并函数
   strats[type + 's'] = mergeAssets
 })
 
@@ -518,6 +529,7 @@ function normalizeDirectives (options: Object) {
 }
 
 function assertObjectType (name: string, value: any, vm: ?Component) {
+  // 检查 value 是否是一个纯对象，如果不是 则抛出警告
   if (!isPlainObject(value)) {
     warn(
       `Invalid value for option "${name}": expected an Object, ` +
