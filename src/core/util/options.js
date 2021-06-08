@@ -436,11 +436,23 @@ function normalizeInject (options: Object, vm: ?Component) {
  * Normalize raw function directives into object format.
  */
 function normalizeDirectives (options: Object) {
+  // 获取 options 中的 directives
   const dirs = options.directives
+  // 如果存在
   if (dirs) {
     for (const key in dirs) {
+      // 获取每一个指令
       const def = dirs[key]
+      // 查看指令是否是函数，如果是函数
       if (typeof def === 'function') {
+        // 标准化处理
+        /**
+         * model: {
+         *   bind: model,
+         *   update: model
+         * }
+         *
+         */
         dirs[key] = { bind: def, update: def }
       }
     }
@@ -482,7 +494,7 @@ export function mergeOptions (
   // 标准化处理 inject
   normalizeInject(child, vm)
 
-  //
+  // 标准化处理 指令 directive
   normalizeDirectives(child)
 
   // Apply extends and mixins on the child options,
