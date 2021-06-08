@@ -60,23 +60,41 @@ if (process.env.NODE_ENV !== 'production') {
 /**
  * Helper that recursively merges two data objects together.
  */
+
+/**
+ * 经过处理之后的 data 均为纯对象
+ * @param to childVal
+ * @param from parentVal
+ * @returns {Object}
+ */
 function mergeData (to: Object, from: ?Object): Object {
+  // 如果 parent 不存在，直接返回 child
   if (!from) return to
+
   let key, toVal, fromVal
 
+  // 获取 from 的所有 key
   const keys = hasSymbol
     ? Reflect.ownKeys(from)
     : Object.keys(from)
 
+  // 遍历keys
   for (let i = 0; i < keys.length; i++) {
+    // 缓存每一项的key
     key = keys[i]
     // in case the object is already observed...
+    // 如果当前数据是响应式数据，跳出本次循环，继续下一次
     if (key === '__ob__') continue
+    // 缓存 to 对象中 key 对应的值
     toVal = to[key]
+    // 缓存 from 对象中 key 对应的值
     fromVal = from[key]
+    // 如果 from 对象中的 key 在 to 对象中不存在
     if (!hasOwn(to, key)) {
+      // 使用 set 函数为 to 对象设置 key ，并赋值为 from 中 key 对应的值
+      // 会将 to 对象中的 key 值变为响应式
       set(to, key, fromVal)
-    } else if (
+    } else if (       // 如果 to 和 from 中相同 key 对应的值不同， 且值都是普通对象，递归调用 mergeData 函数
       toVal !== fromVal &&
       isPlainObject(toVal) &&
       isPlainObject(fromVal)
@@ -141,6 +159,7 @@ export function mergeDataOrFn (
 
 // 给策略合并对象 添加 data 函数
 // data 的合并策略
+// data 合并后总是会返回一个函数
 strats.data = function (
   parentVal: any,
   childVal: any,
