@@ -36,7 +36,7 @@ const strats = config.optionMergeStrategies
  */
 if (process.env.NODE_ENV !== 'production') {
   // 如果不是生产环境
-  // 给 策略合并对象添加 el, propsData 策略函数
+  // 给 策略合并对象添加 el, propsData 策略函数  el 和 propsData 的合并策略
   // 在生产环境， starts 中是没有 el 和 propsData 策略合并函数的，在生产环境中 el 和 propsData 的策略函数是默认的 defaultStrat 函数
   // 返回 如果 child 存在返回 child 否则返回 parent
   strats.el = strats.propsData = function (parent, child, vm, key) {
@@ -46,6 +46,8 @@ if (process.env.NODE_ENV !== 'production') {
     // 在 global-api extend 方法中 mergeOptions 的第三个参数 vm 是 undefined
     // 即 如果 vm 存在，则是通过 new Vue 创建的，如果不存在，则是通过 Vue.extend 创建的组件
     if (!vm) {
+      // key 是 el 或者 propsData
+      // TODO propsData??????
       warn(
         `option "${key}" can only be used during instance ` +
         'creation with the `new` keyword.'
@@ -93,6 +95,7 @@ export function mergeDataOrFn (
   childVal: any,
   vm?: Component
 ): ?Function {
+  // 如果 vm 不存在
   if (!vm) {
     // in a Vue.extend merge, both should be functions
     if (!childVal) {
@@ -107,36 +110,46 @@ export function mergeDataOrFn (
     // check if parentVal is a function here because
     // it has to be a function to pass previous merges.
     return function mergedDataFn () {
+      // 对父组件和子组件对 data 做判断，如果是函数则调用该函数，修改函数内的 this 并返回，否则直接传入 data
+      // TODO mergeData 函数
       return mergeData(
         typeof childVal === 'function' ? childVal.call(this, this) : childVal,
         typeof parentVal === 'function' ? parentVal.call(this, this) : parentVal
       )
     }
   } else {
+    // vm 存在
     return function mergedInstanceDataFn () {
       // instance merge
+      // 规范 childVal，如果是函数则为 函数的返回值，否则是 childVal 自身
       const instanceData = typeof childVal === 'function'
         ? childVal.call(vm, vm)
         : childVal
       const defaultData = typeof parentVal === 'function'
         ? parentVal.call(vm, vm)
         : parentVal
+      // 如果 instanceData 存在，返回 mergeData 函数的返回值
       if (instanceData) {
         return mergeData(instanceData, defaultData)
       } else {
+        // 否则返回处理后的 parentVal
         return defaultData
       }
     }
   }
 }
 
-// 策略合并对象 添加 data 函数
+// 给策略合并对象 添加 data 函数
+// data 的合并策略
 strats.data = function (
   parentVal: any,
   childVal: any,
   vm?: Component
 ): ?Function {
+  // 如果 vm 不存在，即 extend 创建的
   if (!vm) {
+    // 子组件的 data 存在且不是函数，警告子组件的 data 应该是一个返回了对象的函数，
+    // 返回 父组件的 data
     if (childVal && typeof childVal !== 'function') {
       process.env.NODE_ENV !== 'production' && warn(
         'The "data" option should be a function ' +
@@ -147,6 +160,7 @@ strats.data = function (
 
       return parentVal
     }
+    // 如果 子组件的 data 是函数
     return mergeDataOrFn(parentVal, childVal)
   }
 
