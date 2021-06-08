@@ -383,16 +383,44 @@ function normalizeInject (options: Object, vm: ?Component) {
   const normalized = options.inject = {}
   // 如果 inject 是一个数组
   if (Array.isArray(inject)) {
-    // 遍历数组
+    // 遍历数组 inject: ['foo', 'bar']
     for (let i = 0; i < inject.length; i++) {
       // 格式化 normalized
+      /**
+       * {
+       *   foo: {
+       *     form: 'foo'
+       *   },
+       *   bar: {
+       *     form: 'bar'
+       *   }
+       * }
+       *
+       */
       normalized[inject[i]] = { from: inject[i] }
     }
   } else if (isPlainObject(inject)) {
+    // 是一个对象
     for (const key in inject) {
+      /**
+       * inject: {
+       *   foo: {
+       *     default: 'foo'
+       *   },
+       *   bar: {
+       *     form: 'bar',
+       *     default: 'bar'
+       *   },
+       *   baz: {
+       *     from: 'baz',
+       *     default: () => [1, 2, 3]
+       *   }
+       * }
+       */
       const val = inject[key]
+      // 判断是否是普通对象
       normalized[key] = isPlainObject(val)
-        ? extend({ from: key }, val)
+        ? extend({ from: key }, val)    // 将 val 和 { form: key } 合并
         : { from: val }
     }
   } else if (process.env.NODE_ENV !== 'production') {
@@ -453,6 +481,8 @@ export function mergeOptions (
 
   // 标准化处理 inject
   normalizeInject(child, vm)
+
+  //
   normalizeDirectives(child)
 
   // Apply extends and mixins on the child options,
