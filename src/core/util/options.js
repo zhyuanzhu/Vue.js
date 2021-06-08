@@ -26,13 +26,25 @@ import {
  * how to merge a parent option value and a child option
  * value into the final value.
  */
+
+// 默认是一个空对象  Object.create(null)
+// 合并选项的策略对象，会包含多个合并策略的函数
 const strats = config.optionMergeStrategies
 
 /**
  * Options with restrictions
  */
 if (process.env.NODE_ENV !== 'production') {
+  // 如果不是生产环境
+  // 给 策略合并对象添加 el, propsData 策略函数
+  // 在生产环境， starts 中是没有 el 和 propsData 策略合并函数的，在生产环境中 el 和 propsData 的策略函数是默认的 defaultStrat 函数
+  // 返回 如果 child 存在返回 child 否则返回 parent
   strats.el = strats.propsData = function (parent, child, vm, key) {
+    // 如果 vm 不存在则说明是 子组件
+    // vm 就是 mergeOptions 中的第三个参数 vm
+    // 在 _init 函数中 mergeOptions 的第三个参数 vm 是 Vue 的实例
+    // 在 global-api extend 方法中 mergeOptions 的第三个参数 vm 是 undefined
+    // 即 如果 vm 存在，则是通过 new Vue 创建的，如果不存在，则是通过 Vue.extend 创建的组件
     if (!vm) {
       warn(
         `option "${key}" can only be used during instance ` +
@@ -118,6 +130,7 @@ export function mergeDataOrFn (
   }
 }
 
+// 策略合并对象 添加 data 函数
 strats.data = function (
   parentVal: any,
   childVal: any,
@@ -261,6 +274,7 @@ strats.provide = mergeDataOrFn
 /**
  * Default strategy.
  */
+// 如果 childVal 不存在，则返回 parentVal, 否则返回 childVal
 const defaultStrat = function (parentVal: any, childVal: any): any {
   return childVal === undefined
     ? parentVal
@@ -414,7 +428,8 @@ function normalizeInject (options: Object, vm: ?Component) {
        *   baz: {
        *     from: 'baz',
        *     default: () => [1, 2, 3]
-       *   }
+       *   },
+       *   faz: 'datas'
        * }
        */
       const val = inject[key]
@@ -422,6 +437,8 @@ function normalizeInject (options: Object, vm: ?Component) {
       normalized[key] = isPlainObject(val)
         ? extend({ from: key }, val)    // 将 val 和 { form: key } 合并
         : { from: val }
+      // 处理户
+      // faz: { form: 'datas' }
     }
   } else if (process.env.NODE_ENV !== 'production') {
     warn(
@@ -445,12 +462,13 @@ function normalizeDirectives (options: Object) {
       const def = dirs[key]
       // 查看指令是否是函数，如果是函数
       if (typeof def === 'function') {
-        // 标准化处理
+        // 标准化处理 v-test v-test1
         /**
-         * model: {
+         * test: {
          *   bind: model,
          *   update: model
-         * }
+         * },
+         * test1: function () {}
          *
          */
         dirs[key] = { bind: def, update: def }
@@ -501,12 +519,19 @@ export function mergeOptions (
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
+  // TODO 子组件什么时候没有 _base 属性
   if (!child._base) {
+    // 如果使用 extends 扩展了另一个组件
     if (child.extends) {
+      // 递归调用合并 extends，并将返回值 赋值为 parent 的值
       parent = mergeOptions(parent, child.extends, vm)
     }
+    // 如果存在 mixins
     if (child.mixins) {
+      // 循环遍历 mixins 的每一项
       for (let i = 0, l = child.mixins.length; i < l; i++) {
+        // 递归调用合并每一项 mixins 的数据
+        // 并将返回值赋值为 parent 的新值
         parent = mergeOptions(parent, child.mixins[i], vm)
       }
     }
@@ -514,15 +539,33 @@ export function mergeOptions (
 
   const options = {}
   let key
+  /**
+   * 如果 parent 是 Vue.options
+   * Vue.options = {
+   *   components: {
+   *     KeepAlive,
+   *     Transition,
+   *     TransitionGroup
+   *   },
+   *   directives: {
+   *     model,
+   *     show
+   *   },
+   *   filters: Object.create(null),
+   *   _base: Vue
+   * }
+   */
   for (key in parent) {
     mergeField(key)
   }
   for (key in child) {
+    // key 不存在与 parent 中，避免了 重复调用，因为已经在上一个 for in 循环中调用了
     if (!hasOwn(parent, key)) {
       mergeField(key)
     }
   }
   function mergeField (key) {
+    //
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key)
   }
