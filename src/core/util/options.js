@@ -340,10 +340,12 @@ strats.computed = function (
   // 把 parentVal 合并到 ret 对象上
   extend(ret, parentVal)
   // 如果 childVal 存在，将 childVal 合并到 ret 上
-  // 即 如果 childVal 存在，将 childVal 与 parentVal 合并
+  // 即 如果 childVal 存在，将 childVal 与 parentVal 合并; childVal 中同名的属性与覆盖 parentVal 中同名的属性
   if (childVal) extend(ret, childVal)
   return ret
 }
+
+// provide 的策略合并函数
 strats.provide = mergeDataOrFn
 
 /**
@@ -567,6 +569,19 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
  */
+
+/**
+ * 对于 el, propsData 选项使用默认的合并策略 defaultStrat
+ * 对于 data 选项，使用 mergeDataOrFn 函数进行处理，最终结果是 data 选项变成一个函数，且该函数的执行结果为 data 真正的数据对象 return {}
+ * 对于 生命周期钩子，合并成数组，使父子选项中的钩子都能被执行
+ * 对于 directives, components, filters 资源，以原型链的形式处理，所以在任何组件中都可以使用
+ * 对于 watch 选项合并，如果父子选项都有相同的观测字段，合并为数组处理
+ * 对于 props, methods, inject, computed 选项，合并为对象处理，但子选项会覆盖父选项中同名的属性
+ * 对于 provide 选项，使用 mergeDataOrFn 函数进行处理
+ * 其他的全部使用默认的合并策略 defaultStrat
+ */
+// defaultStrat 的策略是 如果子选项存在就使用子选项，否则使用父选项
+
 export function mergeOptions (
   parent: Object,
   child: Object,
