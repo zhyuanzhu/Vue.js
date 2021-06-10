@@ -269,6 +269,7 @@ ASSET_TYPES.forEach(function (type) {
  * Watchers hashes should not overwrite one
  * another, so we merge them as arrays.
  */
+// watch 的合并策略函数
 strats.watch = function (
   parentVal: ?Object,
   childVal: ?Object,
@@ -276,25 +277,37 @@ strats.watch = function (
   key: string
 ): ?Object {
   // work around Firefox's Object.prototype.watch...
+  // Firefox 浏览器中原生的 Object.prototype 拥有原生的 watch 函数
+  // 所以当发现组件选项是浏览器原生的 watch 时，说明没有写 watch，直接赋值为 undefined
   if (parentVal === nativeWatch) parentVal = undefined
   if (childVal === nativeWatch) childVal = undefined
   /* istanbul ignore if */
+  // 如果 childVal 不存在，直接创建一个继承 parentVal 的对象 或者 创建一个空对象
   if (!childVal) return Object.create(parentVal || null)
+  // 开发环境 对 childVal 做格式检查
   if (process.env.NODE_ENV !== 'production') {
     assertObjectType(key, childVal, vm)
   }
+  // 如果 parentVal 不存在，返回 childVal
   if (!parentVal) return childVal
   const ret = {}
+  // 将 parentVal 合并到 ret 上
   extend(ret, parentVal)
+
+  // 循环遍历 childVal 中的每一项
   for (const key in childVal) {
+    // 缓存 ret 中存储的 key 值
     let parent = ret[key]
+    // 获取当前 childVal 中 key 对应的值
     const child = childVal[key]
+    // 标准格式化处理 parent, 如果 parent 存在且不是数组，将 parent 转成数组
     if (parent && !Array.isArray(parent)) {
       parent = [parent]
     }
-    ret[key] = parent
-      ? parent.concat(child)
-      : Array.isArray(child) ? child : [child]
+    // 给 ret[key] 赋值
+    ret[key] = parent        //查看 parent 是否存在
+      ? parent.concat(child)     // 存在的话把 parent 与 child 合并
+      : Array.isArray(child) ? child : [child]    // 不存在，判断 child 是否是数组，是数组直接返回，不是数组处理成数组
   }
   return ret
 }
