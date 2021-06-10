@@ -284,17 +284,20 @@ strats.watch = function (
   /* istanbul ignore if */
   // 如果 childVal 不存在，直接创建一个继承 parentVal 的对象 或者 创建一个空对象
   if (!childVal) return Object.create(parentVal || null)
+  // 如果 childVal 存在，继续执行代码
   // 开发环境 对 childVal 做格式检查
   if (process.env.NODE_ENV !== 'production') {
     assertObjectType(key, childVal, vm)
   }
   // 如果 parentVal 不存在，返回 childVal
   if (!parentVal) return childVal
+  // 如果 parentVal 存在，继续执行代码
   const ret = {}
   // 将 parentVal 合并到 ret 上
   extend(ret, parentVal)
 
   // 循环遍历 childVal 中的每一项
+  // 循环的最终目的是 检测 childVal 中的值是否在 parentVal。 如果在，合并到一个数组后返回。否则直接把子选项变成一个数组返回
   for (const key in childVal) {
     // 缓存 ret 中存储的 key 值
     let parent = ret[key]
@@ -315,6 +318,7 @@ strats.watch = function (
 /**
  * Other object hashes.
  */
+// props, methods, inject, computed 的策略合并函数
 strats.props =
 strats.methods =
 strats.inject =
@@ -324,12 +328,19 @@ strats.computed = function (
   vm?: Component,
   key: string
 ): ?Object {
+  // 如果 childVal 存在且是开发环境，检查 childVal 的数据格式
   if (childVal && process.env.NODE_ENV !== 'production') {
     assertObjectType(key, childVal, vm)
   }
+  // 如果 parentVal 不存在，返回 childVal
   if (!parentVal) return childVal
+  // 如果 parentVal 存在，代码继续执行
+  // 创建一个没有原型的空对象 ret
   const ret = Object.create(null)
+  // 把 parentVal 合并到 ret 对象上
   extend(ret, parentVal)
+  // 如果 childVal 存在，将 childVal 合并到 ret 上
+  // 即 如果 childVal 存在，将 childVal 与 parentVal 合并
   if (childVal) extend(ret, childVal)
   return ret
 }
