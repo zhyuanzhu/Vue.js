@@ -66,17 +66,26 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   }
   return map
 }
-
+// patch 函数的真身
 export function createPatchFunction (backend) {
   let i, j
-  const cbs = {}
 
+  // 模块中钩子函数的存储
+  const cbs = {}
+  // modules 模块
+  // nodeOps 操作 dom 的 api
   const { modules, nodeOps } = backend
 
+  // 遍历 hooks 数组
   for (i = 0; i < hooks.length; ++i) {
+    // 将 hooks 数组的每一项，作为 cbs 的 key 初始化，赋值为一个空数组
     cbs[hooks[i]] = []
+
+    // 遍历模块
     for (j = 0; j < modules.length; ++j) {
+      // 如果当前模块中存在 hooks 钩子函数
       if (isDef(modules[j][hooks[i]])) {
+        // 将模块中对应的 hooks 钩子函数 push 进 钩子函数存储对象 cbs
         cbs[hooks[i]].push(modules[j][hooks[i]])
       }
     }

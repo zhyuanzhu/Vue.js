@@ -64,9 +64,11 @@ export function initLifecycle (vm: Component) {
 }
 
 export function lifecycleMixin (Vue: Class<Component>) {
+  // _update 方法定义
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
     const prevEl = vm.$el
+    // 获取 _vnode，_vnode 是之前处理过的 vnode 对象
     const prevVnode = vm._vnode
     const restoreActiveInstance = setActiveInstance(vm)
     vm._vnode = vnode
@@ -75,10 +77,11 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // 判断是否是首次渲染
     if (!prevVnode) {
       // initial render
+      // 首次渲染，传入 $el， vnode
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
       // updates
-      // 数据修改后调用
+      // 数据修改后调用，传入上一次的 vnode 和当前的 vnode
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
     restoreActiveInstance()
