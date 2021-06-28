@@ -21,10 +21,11 @@ export const createCompiler = createCompilerCreator(function baseCompile (
     optimize(ast, options)
   }
   // TODO   调用  generate 函数
+  // 将 抽象语法树转换成 js 代码
   const code = generate(ast, options)
   return {
     ast,
-    render: code.render,
-    staticRenderFns: code.staticRenderFns
+    render: code.render,      // 字符串 render
+    staticRenderFns: code.staticRenderFns      // 静态渲染函数，生成静态渲染 code
   }
 })

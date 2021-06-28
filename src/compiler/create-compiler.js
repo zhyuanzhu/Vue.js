@@ -9,6 +9,12 @@ export function createCompilerCreator (baseCompile: Function): Function {
   // baseOptions 和平台相关的参数
   // 返回函数，处理 和平台相关的参数与用户传入的参数
   return function createCompiler (baseOptions: CompilerOptions) {
+    /**
+     *
+     * @param template 模版
+     * @param options  用户传入的选项
+     * @returns {*}
+     */
     function compile (
       template: string,
       options?: CompilerOptions

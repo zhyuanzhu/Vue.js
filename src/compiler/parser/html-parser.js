@@ -14,12 +14,21 @@ import { isNonPhrasingTag } from 'web/compiler/util'
 import { unicodeRegExp } from 'core/util/lang'
 
 // Regular Expressions for parsing tags and attributes
+// 匹配标签中的属性 指令
 const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
+
 const dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
+
 const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z${unicodeRegExp.source}]*`
+
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`
+
+// 匹配开始标签
 const startTagOpen = new RegExp(`^<${qnameCapture}`)
+
+// 匹配开始标签的闭合标签
 const startTagClose = /^\s*(\/?)>/
+// 匹配结束标签
 const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`)
 const doctype = /^<!DOCTYPE [^>]+>/i
 // #7298: escape - to avoid being passed as HTML comment when inlined in page
