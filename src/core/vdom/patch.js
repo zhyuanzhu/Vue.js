@@ -131,6 +131,16 @@ export function createPatchFunction (backend) {
 
   let creatingElmInVPre = 0
 
+  /**
+   * 将 vnode 转换成真实 dom 挂载到 dom 树上
+   * @param vnode
+   * @param insertedVnodeQueue
+   * @param parentElm
+   * @param refElm
+   * @param nested
+   * @param ownerArray
+   * @param index
+   */
   function createElm (
     vnode,
     insertedVnodeQueue,
@@ -706,18 +716,30 @@ export function createPatchFunction (backend) {
     }
   }
 
+  /**
+   * 返回的函数
+   * @param oldVnode
+   * @param vnode
+   * @param hydrating
+   * @param removeOnly
+   * @returns {*}
+   */
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
+    // 判断 vnode 是否存在
     if (isUndef(vnode)) {
+      // 如果 vnode 不存在，oldVnode 存在，调用函数 invokeDestroyHook 处理 oldVnode
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
     }
 
     let isInitialPatch = false
+    // 新插入 VNode 节点队列
     const insertedVnodeQueue = []
 
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true
+      // 创建新的 VNode
       createElm(vnode, insertedVnodeQueue)
     } else {
       const isRealElement = isDef(oldVnode.nodeType)

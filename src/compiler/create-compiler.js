@@ -4,7 +4,10 @@ import { extend } from 'shared/util'
 import { detectErrors } from './error-detector'
 import { createCompileToFunctionFn } from './to-function'
 
+
 export function createCompilerCreator (baseCompile: Function): Function {
+  // baseOptions 和平台相关的参数
+  // 返回函数，处理 和平台相关的参数与用户传入的参数
   return function createCompiler (baseOptions: CompilerOptions) {
     function compile (
       template: string,

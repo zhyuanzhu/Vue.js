@@ -12,10 +12,15 @@ export const createCompiler = createCompilerCreator(function baseCompile (
   template: string,
   options: CompilerOptions
 ): CompiledResult {
+  // 把模版编译成 ast 抽象语法树
+  // 抽象语法树，用来以树的形式描述代码结构
+
   const ast = parse(template.trim(), options)
   if (options.optimize !== false) {
+    // 优化抽象语法树
     optimize(ast, options)
   }
+  // TODO   调用  generate 函数
   const code = generate(ast, options)
   return {
     ast,
