@@ -48,6 +48,7 @@ export function initMixin (Vue: Class<Component>) {
 
       initInternalComponent(vm, options)
     } else {
+      // 将传入的 options 合并到 $options 上，所以可以通过 $options.el 访问 options.el
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -111,8 +112,9 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     // 存在 el
+    // 是否存在 el 字符串
     if (vm.$options.el) {
-      // 调用 $mount 方法挂载 el
+      // 调用 $mount 方法挂载 el，在 $mount 方法中将字符串转换成真正的 DOM
       vm.$mount(vm.$options.el)
     }
   }

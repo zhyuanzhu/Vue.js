@@ -22,7 +22,8 @@ Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
-  // 获取 el ，取保 el 是 dom
+  // 获取 el ，确保 el 是 dom
+  // 此时的 el 已经是一个 DOM 对象
   el = el && query(el)
 
   /* istanbul ignore if */
@@ -114,11 +115,15 @@ Vue.prototype.$mount = function (
  * of SVG elements in IE as well.
  */
 function getOuterHTML (el: Element): string {
+  // el.outerHTML 的兼容性处理
   if (el.outerHTML) {
     return el.outerHTML
   } else {
+    // 创建一个空的新 div
     const container = document.createElement('div')
+    // 克隆 el 的所有 子节点，将这些子节点添加进刚刚创建的 div
     container.appendChild(el.cloneNode(true))
+    // 返回这个 div 的 innerHTML
     return container.innerHTML
   }
 }
