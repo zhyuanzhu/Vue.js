@@ -67,6 +67,7 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   return map
 }
 // patch 函数的真身
+// 函数 柯利化 处理了参数的差异化
 export function createPatchFunction (backend) {
   let i, j
 
@@ -718,7 +719,7 @@ export function createPatchFunction (backend) {
 
   /**
    * 返回的函数
-   * @param oldVnode
+   * @param oldVnode vnode 或真实 dom
    * @param vnode
    * @param hydrating
    * @param removeOnly
@@ -742,6 +743,8 @@ export function createPatchFunction (backend) {
       // 创建新的 VNode
       createElm(vnode, insertedVnodeQueue)
     } else {
+      // 判断是否是一个真实 DOM 节点
+      // oldVnode.nodeType DOM 节点不是 undefined
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
