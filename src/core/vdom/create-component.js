@@ -98,10 +98,11 @@ const componentVNodeHooks = {
 
 const hooksToMerge = Object.keys(componentVNodeHooks)
 
+//
 export function createComponent (
   Ctor: Class<Component> | Function | Object | void,
   data: ?VNodeData,
-  context: Component,
+  context: Component,     // 上下文
   children: ?Array<VNode>,
   tag?: string
 ): VNode | Array<VNode> | void {
@@ -109,10 +110,12 @@ export function createComponent (
     return
   }
 
+  // 取了 vm.$options._base， 即 Vue 构造函数
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
+    // Vue.extend(Ctor)
     Ctor = baseCtor.extend(Ctor)
   }
 
@@ -126,6 +129,7 @@ export function createComponent (
   }
 
   // async component
+  // 处理异步组件
   let asyncFactory
   if (isUndef(Ctor.cid)) {
     asyncFactory = Ctor
@@ -148,6 +152,7 @@ export function createComponent (
 
   // resolve constructor options in case global mixins are applied after
   // component constructor creation
+  // 重新计算 options
   resolveConstructorOptions(Ctor)
 
   // transform component v-model data into props & events
@@ -183,10 +188,13 @@ export function createComponent (
   }
 
   // install component management hooks onto the placeholder node
+  // 安装组件的钩子
   installComponentHooks(data)
 
   // return a placeholder vnode
   const name = Ctor.options.name || tag
+  // 创建 VNode
+  // 组件 VNode 的 children 是空，text, elm 都是空。 属性存储在 componentOptions 中
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
     data, undefined, undefined, undefined, context,
@@ -225,25 +233,47 @@ export function createComponentInstanceForVnode (
   return new vnode.componentOptions.Ctor(options)
 }
 
+/**
+ * 让组件有默认的钩子函数
+ * @param data
+ */
 function installComponentHooks (data: VNodeData) {
   const hooks = data.hook || (data.hook = {})
+  // 遍历 hooksToMerge  ['init', 'prepatch', 'insert', 'destroy']
   for (let i = 0; i < hooksToMerge.length; i++) {
+    // 获取钩子的 key
     const key = hooksToMerge[i]
+    // 获取 hooks 中当前 key 对应的 hooks 函数
     const existing = hooks[key]
+    // 获取 componentVNodeHooks 中当前 key 对应的钩子函数
     const toMerge = componentVNodeHooks[key]
+    // 如果 existing 和 toMerge 不相等，并且取反  （existing 存在 且 existing._merged 存在）
+    // 即 existing 不存在 或者 existing 存在，但 existing 中没有 _merged 属性，或此属性但值是 false。就执行下面但 合并
     if (existing !== toMerge && !(existing && existing._merged)) {
+      // existing 存在但话执行 mergeHook
+      // 否则直接把 toMerge 赋值给 当前 hooks 中对应但 key
       hooks[key] = existing ? mergeHook(toMerge, existing) : toMerge
     }
   }
 }
 
+/**
+ *
+ * @param f1
+ * @param f2
+ * @returns {merged}
+ */
 function mergeHook (f1: any, f2: any): Function {
+  // 定义一个函数，传入参数
   const merged = (a, b) => {
     // flow complains about extra args which is why we use any
+    // 分别依次执行 f1 和 f2 函数，并将参数传递给这俩函数
     f1(a, b)
     f2(a, b)
   }
+  // 给这个函数添加静态属性 _merged， 并赋值为 true
   merged._merged = true
+  // 返回该函数
   return merged
 }
 

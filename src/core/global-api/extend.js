@@ -39,6 +39,7 @@ export function initExtend (Vue: GlobalAPI) {
 
     // 定义一个 Sub 函数，调用该函数时候 触发函数的 _init 方法
     const Sub = function VueComponent (options) {
+      // Vue.prototype._init
       this._init(options)
     }
     // 原型继承
@@ -48,7 +49,7 @@ export function initExtend (Vue: GlobalAPI) {
     Sub.prototype.constructor = Sub
     // 绑定 cid 的值，并且递增
     Sub.cid = cid++
-    // mergeOptions 后续查看，猜测是合并了 options
+    // 合并了自身的 options 和 Vue 的 options
     Sub.options = mergeOptions(
       Super.options,
       extendOptions
@@ -71,6 +72,7 @@ export function initExtend (Vue: GlobalAPI) {
 
     // allow further extension/mixin/plugin usage
     // 将 Super 中的成员拷贝到 Sub
+    // 为了让子组件拥有和 Vue 一样的能力
     Sub.extend = Super.extend
     Sub.mixin = Super.mixin
     Sub.use = Super.use
