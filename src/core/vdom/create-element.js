@@ -35,6 +35,7 @@ export function createElement (
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
   // 判断 data 是数组或者原始值
+  // 格式化处理参数，类似于参数 重载
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data

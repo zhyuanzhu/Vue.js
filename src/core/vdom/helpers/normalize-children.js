@@ -15,6 +15,8 @@ import { isFalse, isTrue, isDef, isUndef, isPrimitive } from 'shared/util'
 // normalization is needed - if any child is an Array, we flatten the whole
 // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
 // because functional components already normalize their own children.
+// 只考虑一层数组
+// 期望返回值是一个一维数组
 export function simpleNormalizeChildren (children: any) {
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
@@ -42,27 +44,31 @@ function isTextNode (node): boolean {
   return isDef(node) && isDef(node.text) && isFalse(node.isComment)
 }
 
-// TODO
+// 将 children 处理成一维数组 VNode，数组中的每一项都是一个 VNode
 function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNode> {
   const res = []
   let i, c, lastIndex, last
+  // 遍历 children
   for (i = 0; i < children.length; i++) {
     c = children[i]
     if (isUndef(c) || typeof c === 'boolean') continue
     lastIndex = res.length - 1
     last = res[lastIndex]
     //  nested
+    // 发现 当前项是 array
     if (Array.isArray(c)) {
       if (c.length > 0) {
+        // 递归调用，并将返回值赋值给当前项
         c = normalizeArrayChildren(c, `${nestedIndex || ''}_${i}`)
         // merge adjacent text nodes
+        // 如果最后一个节点和下次处理的第一个节点都是文本节点，合并到一起
         if (isTextNode(c[0]) && isTextNode(last)) {
           res[lastIndex] = createTextVNode(last.text + (c[0]: any).text)
           c.shift()
         }
         res.push.apply(res, c)
       }
-    } else if (isPrimitive(c)) {
+    } else if (isPrimitive(c)) {    // 是基础类型
       if (isTextNode(last)) {
         // merge adjacent text nodes
         // this is necessary for SSR hydration because text nodes are
@@ -72,7 +78,7 @@ function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNo
         // convert primitive to vnode
         res.push(createTextVNode(c))
       }
-    } else {
+    } else {   // 是一个正常的 vnode
       if (isTextNode(c) && isTextNode(last)) {
         // merge adjacent text nodes
         res[lastIndex] = createTextVNode(last.text + c.text)

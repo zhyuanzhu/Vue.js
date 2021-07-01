@@ -96,6 +96,7 @@ export function renderMixin (Vue: Class<Component>) {
       currentRenderingInstance = vm
       // vm.$createElement 相当于 h 函数
       // render 是用户编写的
+      // vm._renderProxy 生产环境是 this ， 开发环境是一个代理
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)
