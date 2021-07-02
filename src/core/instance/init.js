@@ -37,7 +37,7 @@ export function initMixin (Vue: Class<Component>) {
     // 设置响应式的时候会处理
     vm._isVue = true
     // merge options
-    // _isComponent 这个属性什么时候生成？
+    // _isComponent 这个属性什么时候生成？  createComponent 方法中，在 componentVNodeHooks 中的 init 方法中挂载
      // 这个条件判断，无论是 if 还是 else 中，都是 为 vm 挂载 $options 属性
     // 判断是否是组件
     if (options && options._isComponent) {

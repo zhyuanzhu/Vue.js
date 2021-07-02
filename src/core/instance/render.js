@@ -86,6 +86,7 @@ export function renderMixin (Vue: Class<Component>) {
 
     // set parent vnode. this allows render functions to have access
     // to the data on the placeholder node.
+    // 占位符 vnode
     vm.$vnode = _parentVnode
     // render self
     let vnode
@@ -97,6 +98,7 @@ export function renderMixin (Vue: Class<Component>) {
       // vm.$createElement 相当于 h 函数
       // render 是用户编写的
       // vm._renderProxy 生产环境是 this ， 开发环境是一个代理
+      // 生成一个渲染 vnode
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)
@@ -132,6 +134,7 @@ export function renderMixin (Vue: Class<Component>) {
       vnode = createEmptyVNode()
     }
     // set parent
+    // 将渲染 vnode 的 parent 指向占位符 vnode
     vnode.parent = _parentVnode
     return vnode
   }

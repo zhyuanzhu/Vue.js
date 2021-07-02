@@ -213,6 +213,12 @@ export function createComponent (
   return vnode
 }
 
+/**
+ *
+ * @param vnode
+ * @param parent  vm的实列
+ * @returns {CombinedVueInstance<Vue, object, object, object, Record<never, any>>}
+ */
 export function createComponentInstanceForVnode (
   // we know it's MountedComponentVNode but flow doesn't
   vnode: any,
@@ -230,7 +236,7 @@ export function createComponentInstanceForVnode (
     options.render = inlineTemplate.render
     options.staticRenderFns = inlineTemplate.staticRenderFns
   }
-  return new vnode.componentOptions.Ctor(options)
+  return new vnode.componentOptions.Ctor(options)    // 实际上执行了子组件的构造函数  Sub，返回子组件实例
 }
 
 /**

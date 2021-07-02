@@ -736,7 +736,7 @@ export function createPatchFunction (backend) {
     let isInitialPatch = false
     // 新插入 VNode 节点队列
     const insertedVnodeQueue = []
-
+    
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true

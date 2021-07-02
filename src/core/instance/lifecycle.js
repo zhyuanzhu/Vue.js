@@ -23,6 +23,7 @@ export let isUpdatingChildComponent: boolean = false
 
 export function setActiveInstance(vm: Component) {
   const prevActiveInstance = activeInstance
+  // 每次 _update 将当前 vm 保存在 activeInstance 中
   activeInstance = vm
   return () => {
     activeInstance = prevActiveInstance
