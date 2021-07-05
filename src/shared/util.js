@@ -1,21 +1,26 @@
 /* @flow */
 
+// 创建一个空对象
 export const emptyObject = Object.freeze({})
 
 // These helpers produce better VM code in JS engines due to their
 // explicitness and function inlining.
+// 是 undefined 或者 null
 export function isUndef (v: any): boolean %checks {
   return v === undefined || v === null
 }
 
+// 不是 undefined 或者 不是 null
 export function isDef (v: any): boolean %checks {
   return v !== undefined && v !== null
 }
 
+// 是严格模式的 true
 export function isTrue (v: any): boolean %checks {
   return v === true
 }
 
+// 是 严格模式的 false
 export function isFalse (v: any): boolean %checks {
   return v === false
 }
@@ -39,6 +44,7 @@ export function isPrimitive (value: any): boolean %checks {
  * Objects from primitive values when we know the value
  * is a JSON-compliant type.
  */
+// 判断是否是 object 类型
 export function isObject (obj: mixed): boolean %checks {
   return obj !== null && typeof obj === 'object'
 }
@@ -56,6 +62,7 @@ export function toRawType (value: any): string {
  * Strict object type check. Only returns true
  * for plain JavaScript objects.
  */
+// 是 object。使用 toString.call 的方式获取内部的 [[class]]
 export function isPlainObject (obj: any): boolean {
   return _toString.call(obj) === '[object Object]'
 }
@@ -67,6 +74,7 @@ export function isRegExp (v: any): boolean {
 /**
  * Check if val is a valid array index.
  */
+// 判断是否是数组的有效索引
 export function isValidArrayIndex (val: any): boolean {
   const n = parseFloat(String(val))
   return n >= 0 && Math.floor(n) === n && isFinite(val)
@@ -131,6 +139,7 @@ export const isReservedAttribute = makeMap('key,ref,slot,slot-scope,is')
 /**
  * Remove an item from an array.
  */
+// 从数组中删除一项，返回删除的该项 数组
 export function remove (arr: Array<any>, item: any): Array<any> | void {
   if (arr.length) {
     const index = arr.indexOf(item)
@@ -144,6 +153,7 @@ export function remove (arr: Array<any>, item: any): Array<any> | void {
  * Check whether an object has the property.
  */
 const hasOwnProperty = Object.prototype.hasOwnProperty
+// 判断属性是否是对象自身拥有，而不是原型上
 export function hasOwn (obj: Object | Array<*>, key: string): boolean {
   return hasOwnProperty.call(obj, key)
 }
@@ -229,6 +239,7 @@ export function toArray (list: any, start?: number): Array<any> {
 /**
  * Mix properties into target object.
  */
+// 将 _form 上的属性扩展至 to 对象上，并会层叠掉 to 对象上相同属性名的值   Object.assign(to, _from)
 export function extend (to: Object, _from: ?Object): Object {
   for (const key in _from) {
     to[key] = _from[key]
@@ -256,11 +267,13 @@ export function toObject (arr: Array<any>): Object {
  * Stubbing args to make Flow happy without leaving useless transpiled code
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
  */
+// 无论传入什么参数，都是一个空函数，也没有定义返回值
 export function noop (a?: any, b?: any, c?: any) {}
 
 /**
  * Always return false.
  */
+// 无论传入了什么参数，该函数的返回值的都是 false
 export const no = (a?: any, b?: any, c?: any) => false
 
 /* eslint-enable no-unused-vars */
@@ -268,6 +281,7 @@ export const no = (a?: any, b?: any, c?: any) => false
 /**
  * Return the same value.
  */
+// 一个纯函数，传入什么参数，原样返回该参数
 export const identity = (_: any) => _
 
 /**
