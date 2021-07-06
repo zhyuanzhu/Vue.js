@@ -51,6 +51,8 @@ export class Observer {
     this.vmCount = 0
 
     // 将实例挂载到 观察对象的 __ob__ 属性，且该属性不能被枚举。无须设置 getter 和 setter
+    // 因为第四个参数是 undefined，而 def 函数的第四个参数 enumerable 是 Object.defineProperty 的 options enumerable
+    // __ob__ 属性设置为不可枚举
     def(value, '__ob__', this)
 
     // 是数组  数组的响应式处理
@@ -149,7 +151,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     shouldObserve &&
     !isServerRendering() &&
     (Array.isArray(value) || isPlainObject(value)) &&   // value 是数组或者是原生对象
-    Object.isExtensible(value) &&
+    Object.isExtensible(value) &&    // value  是课扩展的
     !value._isVue   // value 是否是 Vue 的实例
   ) {
     // 如果没有，则创建 else if 的条件是创建 ob 时对 value 的判断
