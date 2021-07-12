@@ -53,6 +53,7 @@ export class Observer {
     // 将实例挂载到 观察对象的 __ob__ 属性，且该属性不能被枚举。无须设置 getter 和 setter
     // 因为第四个参数是 undefined，而 def 函数的第四个参数 enumerable 是 Object.defineProperty 的 options enumerable
     // __ob__ 属性设置为不可枚举
+    // 没有直接 value.__ob__ = this 是为了后续遍历 walk 的时候直接跳过 __ob__ 属性
     def(value, '__ob__', this)
 
     // 是数组  数组的响应式处理
@@ -226,6 +227,7 @@ export function defineReactive (
       // 返回 value
       return value
     },
+    // 获取的时候派发更新
     set: function reactiveSetter (newVal) {
       // getter 存在，返回 getter 的 返回值，否则是传入的 val
       const value = getter ? getter.call(obj) : val
