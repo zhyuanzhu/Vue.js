@@ -136,7 +136,8 @@ export default class Watcher {
 
       // 弹出栈
       popTarget()
-      // TODO
+      // 清空 newDeps
+      // 需要清空的原因是防止未使用的订阅存在，避免了重复执行 componentUpdate
       this.cleanupDeps()
     }
     return value
@@ -149,6 +150,7 @@ export default class Watcher {
     // 获取 dep 的 id， dep 的唯一标识
     const id = dep.id
     // this.newDepIds 存在 不存在 id
+    // 保证不会重新添加，但已有但仍然存在
     if (!this.newDepIds.has(id)) {
       // 将 id 添加进去
       this.newDepIds.add(id)
@@ -163,22 +165,35 @@ export default class Watcher {
 
   /**
    * Clean up for dependency collection.
+   * 比对 dep 和 newDeps；防止原有添加，但未使用的部分仍然被订阅
    */
   cleanupDeps () {
+    // 获取 deps 的长度
     let i = this.deps.length
     while (i--) {
+      // 缓存当前 dep
       const dep = this.deps[i]
+      // 如果newDepIds 中不存在当前 dep
       if (!this.newDepIds.has(dep.id)) {
+        // 清除已有但 dep
         dep.removeSub(this)
       }
     }
+    // 缓存 depIds
     let tmp = this.depIds
+    // 更改 this.depIds 为 this.newDepIds; 将 this.newDepIds 赋值给 this.depIds
     this.depIds = this.newDepIds
+    // 将 this.depIds 赋值给 this.newDepIds
     this.newDepIds = tmp
+    // 清空 this.newDepIds
     this.newDepIds.clear()
+    // 缓存 this.deps
     tmp = this.deps
+    // 将 this.newDeps 赋值给 this.deps
     this.deps = this.newDeps
+    // 将 this.deps 赋值给 this.newDeps
     this.newDeps = tmp
+    // 清空 this.newDeps
     this.newDeps.length = 0
   }
 
