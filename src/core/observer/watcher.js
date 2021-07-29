@@ -203,12 +203,13 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
-
+    // 判断是否是 computed
     if (this.lazy) {
       this.dirty = true
     } else if (this.sync) {
       this.run()
     } else {
+      // 更新 watcher 队列
       queueWatcher(this)
     }
   }
@@ -234,10 +235,12 @@ export default class Watcher {
         const oldValue = this.value
         this.value = value
         if (this.user) {
+          // 如果是用户 watcher
           const info = `callback for watcher "${this.expression}"`
           invokeWithErrorHandling(this.cb, this.vm, [value, oldValue], this.vm, info)
         } else {
           // 渲染 watcher 的 cb 是 noop 空函数
+          // 回掉函数 newValue, oldValue
           this.cb.call(this.vm, value, oldValue)
         }
       }

@@ -254,6 +254,7 @@ export function defineReactive (
       // 如果新值是对象，观察子对象并返回子的 observer 对象
       childOb = !shallow && observe(newVal)
       // 发布通知，数据已经更新了
+      // 派发更新
       dep.notify()
     }
   })
