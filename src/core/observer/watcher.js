@@ -225,6 +225,7 @@ export default class Watcher {
       const value = this.get()
       // 判断get获取到到值和当前constructor中缓存的value值做比较
       // constructor 中 this.value = this.lazy ? undefined : this.get()
+      // 多次获取依赖值计算，避免不必要的渲染
       if (
         value !== this.value ||
         // Deep watchers and watchers on Object/Arrays should fire even
@@ -255,6 +256,7 @@ export default class Watcher {
    * Evaluate the value of the watcher.
    * This only gets called for lazy watchers.
    */
+  // 求值，获取最新值
   evaluate () {
     this.value = this.get()
     this.dirty = false
