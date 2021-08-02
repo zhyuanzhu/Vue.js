@@ -25,6 +25,7 @@ let index = 0
 /**
  * Reset the scheduler's state.
  */
+// 重置一些状态
 function resetSchedulerState () {
   index = queue.length = activatedChildren.length = 0
   has = {}

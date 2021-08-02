@@ -223,16 +223,20 @@ export default class Watcher {
       // 渲染 watcher 和用户watcher
       // 渲染 watcher value = undefined
       const value = this.get()
+      // 判断get获取到到值和当前constructor中缓存的value值做比较
+      // constructor 中 this.value = this.lazy ? undefined : this.get()
       if (
         value !== this.value ||
         // Deep watchers and watchers on Object/Arrays should fire even
         // when the value is the same, because the value may
         // have mutated.
-        isObject(value) ||
+        isObject(value) ||      // value 值是对象或者用户传入了 deep = true
         this.deep
       ) {
         // set new value
+        // 将 this.value 缓存
         const oldValue = this.value
+        // 更新 this.value 的值
         this.value = value
         if (this.user) {
           // 如果是用户 watcher

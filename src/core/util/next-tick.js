@@ -96,6 +96,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
   // 把 cb 上加入异常处理 存入 callbacks 数组中
+  // callbacks 数组中 push 一个匿名函数，
   callbacks.push(() => {
     // cb  函数传入了
     if (cb) {
