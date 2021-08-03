@@ -60,24 +60,32 @@ function decodeAttr (value, shouldDecodeNewlines) {
   return value.replace(re, match => decodingMap[match])
 }
 
+//
 export function parseHTML (html, options) {
   const stack = []
   const expectHTML = options.expectHTML
   const isUnaryTag = options.isUnaryTag || no
   const canBeLeftOpenTag = options.canBeLeftOpenTag || no
+  // 初始化当前索引位置
   let index = 0
+  // last 上一次的 html 文本，lastTag 上一次解析的标签
   let last, lastTag
+  // 循环  html 字符串
   while (html) {
     last = html
     // Make sure we're not in a plaintext content element like script/style
     if (!lastTag || !isPlainTextElement(lastTag)) {
+      // 寻找 < 的索引位置
       let textEnd = html.indexOf('<')
+      // 如果是 0, 则表示标签刚开始
       if (textEnd === 0) {
         // Comment:
+        // 判断是否为一个注释节点
         if (comment.test(html)) {
+          // 获取注释节点的结束位置
           const commentEnd = html.indexOf('-->')
-
           if (commentEnd >= 0) {
+            // 是否保留注释节点
             if (options.shouldKeepComment) {
               options.comment(html.substring(4, commentEnd), index, index + commentEnd + 3)
             }
@@ -87,6 +95,11 @@ export function parseHTML (html, options) {
         }
 
         // http://en.wikipedia.org/wiki/Conditional_comment#Downlevel-revealed_conditional_comment
+        // 条件注释
+        /**
+         * <!--[if IE]>
+         * <![endif]-->
+         */
         if (conditionalComment.test(html)) {
           const conditionalEnd = html.indexOf(']>')
 
@@ -188,6 +201,7 @@ export function parseHTML (html, options) {
   // Clean up any remaining tags
   parseEndTag()
 
+  // 修改 index 的位置，更新后的 index = index + n，更新 html 的值，将原 html 从索引为 n 的位置开始截取
   function advance (n) {
     index += n
     html = html.substring(n)
