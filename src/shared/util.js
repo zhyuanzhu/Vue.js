@@ -112,18 +112,24 @@ export function toNumber (val: string): number | string {
  * Make a map and return a function for checking if a key
  * is in that map.
  */
+// 创建一个 map 对象
 export function makeMap (
   str: string,
   expectsLowerCase?: boolean
 ): (key: string) => true | void {
+  // 创建一个没有 prototype 的空对象
   const map = Object.create(null)
+  // 将 str 字符串使用 , 分割成数组
   const list: Array<string> = str.split(',')
+  // 遍历数组
   for (let i = 0; i < list.length; i++) {
+    // 将数组中的当前项目存储于 map 中，属性值为 true
     map[list[i]] = true
   }
+  // 如果传入了第二个参数，且为 true
   return expectsLowerCase
-    ? val => map[val.toLowerCase()]
-    : val => map[val]
+    ? val => map[val.toLowerCase()]   // 返回一个函数，传入 key 值，查看 key 是否在 map 中，将 key 的小写处理
+    : val => map[val]   // 返回一个函数，查看 key 是否在 map 中
 }
 
 /**
