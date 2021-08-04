@@ -117,10 +117,14 @@ export function parseHTML (html, options) {
         }
 
         // End tag:
+        // 匹配结束标签
         const endTagMatch = html.match(endTag)
+        // 如果匹配到 结束标签
         if (endTagMatch) {
           const curIndex = index
+          // 前进 匹配到到标签到长度
           advance(endTagMatch[0].length)
+          // 调用 parseEndTag 函数处理
           parseEndTag(endTagMatch[1], curIndex, index)
           continue
         }
@@ -281,9 +285,13 @@ export function parseHTML (html, options) {
     if (end == null) end = index
 
     // Find the closest opened tag of the same type
+    // 如果标签名存在
     if (tagName) {
+      // 将标签名转小写，并赋值给 lowerCasedTagName 变量
       lowerCasedTagName = tagName.toLowerCase()
+      // 从 后向前 遍历 stack
       for (pos = stack.length - 1; pos >= 0; pos--) {
+        // 如果 stack 中到位置和 lowerCasedTagName 相等，跳出循环；缓存 pos 的值
         if (stack[pos].lowerCasedTag === lowerCasedTagName) {
           break
         }
@@ -293,30 +301,39 @@ export function parseHTML (html, options) {
       pos = 0
     }
 
+    // 如果 pos 的值大于等于 0
     if (pos >= 0) {
       // Close all the open elements, up the stack
+      // 从 后向前遍历 stack；直至 i >= pos
       for (let i = stack.length - 1; i >= pos; i--) {
+        // 在开发环境中，i > pos 或者 tagName 不存在，且开启了警告
         if (process.env.NODE_ENV !== 'production' &&
           (i > pos || !tagName) &&
           options.warn
         ) {
+          // 控制台输出警告 tag 对应的标签没有匹配到对应的 闭合标签
           options.warn(
             `tag <${stack[i].tag}> has no matching end tag.`,
             { start: stack[i].start, end: stack[i].end }
           )
         }
+        // TODO
         if (options.end) {
           options.end(stack[i].tag, start, end)
         }
       }
 
       // Remove the open elements from the stack
+      // 修改  stack 的长度
       stack.length = pos
+      // 如果 pos > 0 ,则给 lastTag 赋值为 stack 中的最后一个标签
       lastTag = pos && stack[pos - 1].tag
+      // TODO 如果是 br 标签
     } else if (lowerCasedTagName === 'br') {
       if (options.start) {
         options.start(tagName, [], true, start, end)
       }
+      // TODO 如果是 p 标签
     } else if (lowerCasedTagName === 'p') {
       if (options.start) {
         options.start(tagName, [], false, start, end)
