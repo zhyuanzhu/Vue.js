@@ -53,6 +53,7 @@ const encodedAttrWithNewLines = /&(?:lt|gt|quot|amp|#39|#10|#9);/g
 
 // #5992
 const isIgnoreNewlineTag = makeMap('pre,textarea', true)
+// 如果是 pre 或者 textarea 且 html 字符串的第一个字符是 '\n'，则返回 true，否则返回 false
 const shouldIgnoreFirstNewline = (tag, html) => tag && isIgnoreNewlineTag(tag) && html[0] === '\n'
 
 function decodeAttr (value, shouldDecodeNewlines) {
@@ -130,9 +131,11 @@ export function parseHTML (html, options) {
         }
 
         // Start tag:
+        // 匹配开始标签
         const startTagMatch = parseStartTag()
         if (startTagMatch) {
           handleStartTag(startTagMatch)
+          // 如果是 pre 或者 textarea 且第一个字符是 '\n'，则前进 1
           if (shouldIgnoreFirstNewline(startTagMatch.tagName, html)) {
             advance(1)
           }
@@ -141,8 +144,11 @@ export function parseHTML (html, options) {
       }
 
       let text, rest, next
+      // 如果不是开始 <
       if (textEnd >= 0) {
+        // 从 textEnd 位置开始截取 html 字符串并缓存到 rest
         rest = html.slice(textEnd)
+        // rest 字符串不是结束标签，也不是开始标签，不是注释标签，也不是条件注释标签
         while (
           !endTag.test(rest) &&
           !startTagOpen.test(rest) &&
@@ -150,11 +156,16 @@ export function parseHTML (html, options) {
           !conditionalComment.test(rest)
         ) {
           // < in plain text, be forgiving and treat it as text
+          // 给 next 赋值为 rest 字符串中下一个开始标签的索引，从 索引为1 开始查找
           next = rest.indexOf('<', 1)
+          // 如果 next 不存在，直接跳出
           if (next < 0) break
+          // 更新 textEnd 为 textEnd + next
           textEnd += next
+          // 重新从 textEnd 位置开始截取 html 字符串，并将值赋值给 rest
           rest = html.slice(textEnd)
         }
+        // 从 0 开始截取 到 textEnd 位置的 html 字符串，这部分字符串为文本
         text = html.substring(0, textEnd)
       }
 
@@ -212,13 +223,19 @@ export function parseHTML (html, options) {
   }
 
   function parseStartTag () {
+    // 匹配开始标签 <xx
+    // <div>这是一个div</div>
+    // start: ['<div', 'div', index: 0, input: xxx]
     const start = html.match(startTagOpen)
+    // 如果 start 存在
     if (start) {
+      // 声明 变量 match，存储 tagName：匹配到到标签名， attrs 初始值为 []，start 初始值为 index
       const match = {
         tagName: start[1],
         attrs: [],
         start: index
       }
+      // 前进 start
       advance(start[0].length)
       let end, attr
       while (!(end = html.match(startTagClose)) && (attr = html.match(dynamicArgAttribute) || html.match(attribute))) {
