@@ -183,18 +183,32 @@ export function parseHTML (html, options) {
         options.chars(text, index - text.length, index)
       }
     } else {
-
+      // 如果 lastTag 存在，或者是 script, style, textarea
       let endTagLength = 0
+      // 声明变量 stackedTag，赋值为 lastTag 小写
       const stackedTag = lastTag.toLowerCase()
+      // 获取 stackedTag 的缓存正则
+      // 如果不存在，则赋值 为前面匹配 空白和非空白字符，以 lastTag 为结束闭合标签
       const reStackedTag = reCache[stackedTag] || (reCache[stackedTag] = new RegExp('([\\s\\S]*?)(</' + stackedTag + '[^>]*>)', 'i'))
+      // 调用 字符串的 replace 方法
+      // abcdefghijk</div>
       const rest = html.replace(reStackedTag, function (all, text, endTag) {
+        // all: abcdefghijk</div>
+        // text: abcdefghijk
+        // endTag: </div>
+        // 给 endTagLength 赋值为 endTag 的 length
         endTagLength = endTag.length
+
+        // 不是 script, style, textarea 标签，也不是 noscript
         if (!isPlainTextElement(stackedTag) && stackedTag !== 'noscript') {
+          //
           text = text
             .replace(/<!\--([\s\S]*?)-->/g, '$1') // #7298
             .replace(/<!\[CDATA\[([\s\S]*?)]]>/g, '$1')
         }
+        // 如果 stackedTag 是 pre 或者 textarea 且 text 第一个字符是 '\n'
         if (shouldIgnoreFirstNewline(stackedTag, text)) {
+          // 从所用为 1 开始截取 text，并将截取后的字符赋值给 text
           text = text.slice(1)
         }
         if (options.chars) {
@@ -202,7 +216,9 @@ export function parseHTML (html, options) {
         }
         return ''
       })
+      // 给  index 赋值
       index += html.length - rest.length
+      // 将 html 重置为 ''
       html = rest
       parseEndTag(stackedTag, index - endTagLength, index)
     }
