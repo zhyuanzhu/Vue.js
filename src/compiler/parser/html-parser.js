@@ -27,7 +27,8 @@ const qnameCapture = `((?:${ncname}\\:)?${ncname})`
 // 匹配开始标签
 const startTagOpen = new RegExp(`^<${qnameCapture}`)
 
-// 匹配开始标签的闭合标签
+// 匹配开始标签的闭合标签  xx > || xx /> || > || />
+// 以 \s 开头，以 /> 或者 > 结束
 const startTagClose = /^\s*(\/?)>/
 // 匹配结束标签
 const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`)
@@ -133,9 +134,17 @@ export function parseHTML (html, options) {
         }
 
         // Start tag:
-        // 匹配开始标签
+        // 匹配开始标签,只有开始标签匹配完成，startTagMatch 才有值
         const startTagMatch = parseStartTag()
+        // {
+        //     tagName: '',
+        //     attrs: [],
+        //     start: '',
+        //     end: '',
+        //     unarySlash: ''
+        //   }
         if (startTagMatch) {
+          //
           handleStartTag(startTagMatch)
           // 如果是 pre 或者 textarea 且第一个字符是 '\n'，则前进 1
           if (shouldIgnoreFirstNewline(startTagMatch.tagName, html)) {
@@ -267,7 +276,7 @@ export function parseHTML (html, options) {
         // 将 attr push 进 match 对象的 attrs 属性中
         match.attrs.push(attr)
       }
-      // 如果 是单标签
+      // 如果标签匹配完成
       if (end) {
         match.unarySlash = end[1]
         advance(end[0].length)
@@ -276,13 +285,22 @@ export function parseHTML (html, options) {
       }
     }
   }
-
+  //  {
+  //     tagName: '',
+  //     attrs: [],
+  //     start: '',
+  //     end: '',
+  //     unarySlash: ''
+  //   }
   function handleStartTag (match) {
     const tagName = match.tagName
     const unarySlash = match.unarySlash
 
+    // TODO expectHTML
     if (expectHTML) {
+      // 对最后一个标签是 p标签，且传入的标签是 div.h1-h6,,....
       if (lastTag === 'p' && isNonPhrasingTag(tagName)) {
+        // 解析 p 标签
         parseEndTag(lastTag)
       }
       if (canBeLeftOpenTag(tagName) && lastTag === tagName) {
@@ -290,16 +308,24 @@ export function parseHTML (html, options) {
       }
     }
 
+    // TODO isUnaryTag
     const unary = isUnaryTag(tagName) || !!unarySlash
 
+    // attrs 的长度
     const l = match.attrs.length
     const attrs = new Array(l)
+    // 遍历 l
     for (let i = 0; i < l; i++) {
+      // 获取 attrs 的每一项
       const args = match.attrs[i]
+      // TODO
       const value = args[3] || args[4] || args[5] || ''
+
+      // 如果是 a 标签，且 当前属性的 索引1 处为 href
       const shouldDecodeNewlines = tagName === 'a' && args[1] === 'href'
         ? options.shouldDecodeNewlinesForHref
         : options.shouldDecodeNewlines
+      // 给当前 attrs 对应的项 重新赋值
       attrs[i] = {
         name: args[1],
         value: decodeAttr(value, shouldDecodeNewlines)
@@ -311,7 +337,13 @@ export function parseHTML (html, options) {
     }
 
     if (!unary) {
-      stack.push({ tag: tagName, lowerCasedTag: tagName.toLowerCase(), attrs: attrs, start: match.start, end: match.end })
+      stack.push({
+        tag: tagName,
+        lowerCasedTag: tagName.toLowerCase(),
+        attrs: attrs,
+        start: match.start,
+        end: match.end
+      })
       lastTag = tagName
     }
 
