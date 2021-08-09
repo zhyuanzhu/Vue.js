@@ -222,9 +222,10 @@ export function parseHTML (html, options) {
       html = rest
       parseEndTag(stackedTag, index - endTagLength, index)
     }
-
+    // 如果 html 和 最后剩余的 html 字符串相等
     if (html === last) {
       options.chars && options.chars(html)
+      // 抛出警告，有标签未全部匹配结束，即存在开始标签没有结束的闭合标签
       if (process.env.NODE_ENV !== 'production' && !stack.length && options.warn) {
         options.warn(`Mal-formatted tag at end of template: "${html}"`, { start: index + html.length })
       }
