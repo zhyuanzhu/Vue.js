@@ -61,7 +61,7 @@ function decodeAttr (value, shouldDecodeNewlines) {
   return value.replace(re, match => decodingMap[match])
 }
 
-//
+// TODO options
 export function parseHTML (html, options) {
   const stack = []
   const expectHTML = options.expectHTML
@@ -371,6 +371,14 @@ export function parseHTML (html, options) {
         options.start(tagName, [], true, start, end)
       }
       // TODO 如果是 p 标签
+      // 由于 p 标签 html 渲染的特殊性，做额外的处理
+      // p 标签 嵌套，或者 <p> 标签后面跟随
+      // <address>, <article>, <aside>, <blockquote>, <div>, <dl>, <fieldset>, <footer>,
+      // <form>, <h1> (en-US), <h2> (en-US), <h3> (en-US), <h4> (en-US), <h5> (en-US), <h6> (en-US), <header>,
+      // <hr>, <menu>, <nav>, <ol>, <pre>, <section>, <table>, <ul>
+      // 可以省去结束标签，但最终但渲染结果会将上述标签抽离出
+      // <p><div>1111</div></p>
+      // <p></p><div>1111</div><p></p>
     } else if (lowerCasedTagName === 'p') {
       if (options.start) {
         options.start(tagName, [], false, start, end)
