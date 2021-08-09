@@ -14,9 +14,10 @@ import { isNonPhrasingTag } from 'web/compiler/util'
 import { unicodeRegExp } from 'core/util/lang'
 
 // Regular Expressions for parsing tags and attributes
-// 匹配标签中的属性 指令
+// 匹配标签中的属性 指令 :class
 const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
 
+// 匹配标签中的动态属性 v-for
 const dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
 
 const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z${unicodeRegExp.source}]*`
@@ -255,15 +256,18 @@ export function parseHTML (html, options) {
         attrs: [],
         start: index
       }
-      // 前进 start
+      // 前进 start[0] 的长度  '<div' 的长度
       advance(start[0].length)
       let end, attr
+      // 不是开始闭合标签，单标签；有动态属性标签 v-for v-bind @click等 或者 存在属性 :class
       while (!(end = html.match(startTagClose)) && (attr = html.match(dynamicArgAttribute) || html.match(attribute))) {
         attr.start = index
         advance(attr[0].length)
         attr.end = index
+        // 将 attr push 进 match 对象的 attrs 属性中
         match.attrs.push(attr)
       }
+      // 如果 是单标签
       if (end) {
         match.unarySlash = end[1]
         advance(end[0].length)
