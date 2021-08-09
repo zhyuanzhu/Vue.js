@@ -75,6 +75,7 @@ export function parseHTML (html, options) {
   while (html) {
     last = html
     // Make sure we're not in a plaintext content element like script/style
+    // 第一次查找， lastTag 为 false；且不是 script, style, textarea 标签
     if (!lastTag || !isPlainTextElement(lastTag)) {
       // 寻找 < 的索引位置
       let textEnd = html.indexOf('<')
@@ -168,12 +169,13 @@ export function parseHTML (html, options) {
         // 从 0 开始截取 到 textEnd 位置的 html 字符串，这部分字符串为文本
         text = html.substring(0, textEnd)
       }
-
+      // 如果 textEnd < 0，html 字符串就全部都是 文本
       if (textEnd < 0) {
         text = html
       }
-
+      // 如果 文本存在
       if (text) {
+        // 前进文本的长度
         advance(text.length)
       }
 
@@ -181,6 +183,7 @@ export function parseHTML (html, options) {
         options.chars(text, index - text.length, index)
       }
     } else {
+
       let endTagLength = 0
       const stackedTag = lastTag.toLowerCase()
       const reStackedTag = reCache[stackedTag] || (reCache[stackedTag] = new RegExp('([\\s\\S]*?)(</' + stackedTag + '[^>]*>)', 'i'))
