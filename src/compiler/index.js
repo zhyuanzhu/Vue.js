@@ -5,6 +5,18 @@ import { optimize } from './optimizer'
 import { generate } from './codegen/index'
 import { createCompilerCreator } from './create-compiler'
 
+// createCompilerCreator 返回一个 createCompiler 函数
+// createCompiler 函数返回
+// compile： ----> baseCompile 函数的返回值
+// compileToFunctions: createCompileToFunctionFn(compile)
+// createCompileToFunctionFn 返回一个 compileToFunctions 函数， 返回的这个 compileToFunctions 函数返回 一个 CompiledFunctionResult 对象
+/**
+  type CompiledFunctionResult = {
+    render: Function;
+    staticRenderFns: Array<Function>;
+  };
+ */
+
 // `createCompilerCreator` allows creating compilers that use alternative
 // parser/optimizer/codegen, e.g the SSR optimizing compiler.
 // Here we just export a default compiler using the default parts.
