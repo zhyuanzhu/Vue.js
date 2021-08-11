@@ -7,7 +7,7 @@ import { createCompilerCreator } from './create-compiler'
 
 // createCompilerCreator 返回一个 createCompiler 函数
 // createCompiler 函数返回
-// compile： ----> baseCompile 函数的返回值
+// compile： ----> compile 是 baseCompile 函数的返回值
 // compileToFunctions: createCompileToFunctionFn(compile)
 // createCompileToFunctionFn 返回一个 compileToFunctions 函数， 返回的这个 compileToFunctions 函数返回 一个 CompiledFunctionResult 对象
 /**
