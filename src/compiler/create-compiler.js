@@ -19,6 +19,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
       template: string,
       options?: CompilerOptions
     ): CompiledResult {
+      // 创建一个对象 finalOptions，原型指向 baseOptions
       const finalOptions = Object.create(baseOptions)
       const errors = []
       const tips = []
@@ -28,6 +29,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
       }
 
       if (options) {
+        // TODO  outputSourceRange 什么时候挂载，什么作用
         if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
           // $flow-disable-line
           const leadingSpaceLength = template.match(/^\s*/)[0].length
@@ -46,18 +48,23 @@ export function createCompilerCreator (baseCompile: Function): Function {
           }
         }
         // merge custom modules
+        // 如果 有 modules
         if (options.modules) {
+          // 给 finalOptions 挂载 modules ,将 baseOptions.modules 和 传入的 options.modules 合并
           finalOptions.modules =
             (baseOptions.modules || []).concat(options.modules)
         }
         // merge custom directives
+        // 如果有 directives
         if (options.directives) {
+          // 给 finalOptions 挂载 directives；将传入的 options.directives 合并到 baseOptions.directives 上
           finalOptions.directives = extend(
             Object.create(baseOptions.directives || null),
             options.directives
           )
         }
         // copy other options
+        // 将 options 上的值浅拷贝到 finalOptions 中
         for (const key in options) {
           if (key !== 'modules' && key !== 'directives') {
             finalOptions[key] = options[key]
@@ -66,7 +73,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
       }
 
       finalOptions.warn = warn
-
+      // 调用 baseCompile 函数，处理 template 和 finalOptions，返回值为 compiled 函数
       const compiled = baseCompile(template.trim(), finalOptions)
       if (process.env.NODE_ENV !== 'production') {
         detectErrors(compiled.ast, warn)
