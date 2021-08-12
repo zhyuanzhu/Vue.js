@@ -19,12 +19,13 @@ const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s
 
 // 匹配标签中的动态属性 v-for
 const dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
-
+//以字母或者下划线开头，后面可以是 - 数字 下划线 字母 或者 unicode 字符
 const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z${unicodeRegExp.source}]*`
-
+// 正则 使用分组 ，便于 match 捕获
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`
 
 // 匹配开始标签
+// 以 < 开头
 const startTagOpen = new RegExp(`^<${qnameCapture}`)
 
 // 匹配开始标签的闭合标签  xx > || xx /> || > || />
@@ -66,7 +67,7 @@ function decodeAttr (value, shouldDecodeNewlines) {
 // TODO options
 export function parseHTML (html, options) {
   const stack = []
-  const expectHTML = options.expectHTML
+  const expectHTML = options.expectHTML     // true
   const isUnaryTag = options.isUnaryTag || no
   const canBeLeftOpenTag = options.canBeLeftOpenTag || no
   // 初始化当前索引位置
@@ -160,6 +161,8 @@ export function parseHTML (html, options) {
         // 从 textEnd 位置开始截取 html 字符串并缓存到 rest
         rest = html.slice(textEnd)
         // rest 字符串不是结束标签，也不是开始标签，不是注释标签，也不是条件注释标签
+        // 处理文本节点中存在 <
+        // <div>这是一个<数学符号</div>
         while (
           !endTag.test(rest) &&
           !startTagOpen.test(rest) &&
@@ -168,12 +171,14 @@ export function parseHTML (html, options) {
         ) {
           // < in plain text, be forgiving and treat it as text
           // 给 next 赋值为 rest 字符串中下一个开始标签的索引，从 索引为1 开始查找
+          // 这是一个<数学符号</div>     ===>    <数学符号</div>
           next = rest.indexOf('<', 1)
           // 如果 next 不存在，直接跳出
           if (next < 0) break
           // 更新 textEnd 为 textEnd + next
           textEnd += next
           // 重新从 textEnd 位置开始截取 html 字符串，并将值赋值给 rest
+          // 数学符号</div>
           rest = html.slice(textEnd)
         }
         // 从 0 开始截取 到 textEnd 位置的 html 字符串，这部分字符串为文本
@@ -247,6 +252,9 @@ export function parseHTML (html, options) {
   parseEndTag()
 
   // 修改 index 的位置，更新后的 index = index + n，更新 html 的值，将原 html 从索引为 n 的位置开始截取
+  // <div id="dv" class="wrap">这是一个div</div>
+  // advance(4) 之后 index: 4
+  // html: id="dv" class="wrap">这是一个div</div>
   function advance (n) {
     index += n
     html = html.substring(n)
@@ -309,6 +317,7 @@ export function parseHTML (html, options) {
     }
 
     // TODO isUnaryTag
+    // 是否是一元闭合标签
     const unary = isUnaryTag(tagName) || !!unarySlash
 
     // attrs 的长度
@@ -336,7 +345,9 @@ export function parseHTML (html, options) {
       }
     }
 
+    // 如果不是一元闭合标签
     if (!unary) {
+      // 将该标签 push 进 栈 stack；后续解析结束标签的时候，结束的标签是否和栈顶的标签相同
       stack.push({
         tag: tagName,
         lowerCasedTag: tagName.toLowerCase(),
