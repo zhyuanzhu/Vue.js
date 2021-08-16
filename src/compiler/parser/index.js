@@ -458,6 +458,8 @@ export function processElement (
   // 给 element 设置 key 属性
   processKey(element)
 
+  // element.key = key
+
   // determine whether this is a plain element after
   // removing structural attributes
   // 如果不存在 key ,没有 slot-scope v-slot ,也没有属性
@@ -469,7 +471,12 @@ export function processElement (
   )
 
   processRef(element)
+  // element.ref = ref
+  // element.refInFor = boolean
+
   processSlotContent(element)
+  //
+
   processSlotOutlet(element)
   processComponent(element)
   for (let i = 0; i < transforms.length; i++) {
@@ -512,10 +519,16 @@ function processKey (el) {
   }
 }
 
+// 处理 ref
 function processRef (el) {
+  // 获取 el 的 ref 属性
   const ref = getBindingAttr(el, 'ref')
+  // 如果 ref 存在
   if (ref) {
+    // 给 el 挂载 ref 属性，值为 ref
     el.ref = ref
+    // 给 el 挂载 refInFor 属性，值为 checkInFor 的返回值
+    // 如果 el 及其 parent 都没有 for 属性，则返回 false，否则返回 true
     el.refInFor = checkInFor(el)
   }
 }
@@ -633,8 +646,10 @@ function processOnce (el) {
 function processSlotContent (el) {
   let slotScope
   if (el.tag === 'template') {
+    // 如果 是 template, 且有 scope 属性
     slotScope = getAndRemoveAttr(el, 'scope')
     /* istanbul ignore if */
+    // 非生产环境，且 slotScope 存在，抛出警告信息
     if (process.env.NODE_ENV !== 'production' && slotScope) {
       warn(
         `the "scope" attribute for scoped slots have been deprecated and ` +
@@ -645,7 +660,10 @@ function processSlotContent (el) {
         true
       )
     }
+  // 给 el 挂载 slotScope 属性，值为 scope 或者 slot-scope 的属性值
     el.slotScope = slotScope || getAndRemoveAttr(el, 'slot-scope')
+
+  // 如果 getAndRemoveAttr(el, 'slot-scope') 的返回值存在，则将返回值赋值给 slotScope
   } else if ((slotScope = getAndRemoveAttr(el, 'slot-scope'))) {
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && el.attrsMap['v-for']) {
@@ -661,18 +679,32 @@ function processSlotContent (el) {
   }
 
   // slot="xxx"
+  // 获取 slot 的动态绑定值 v-slot :slot
   const slotTarget = getBindingAttr(el, 'slot')
+  // slotTarget 存在
   if (slotTarget) {
+    // 查看是否是 ""，如果是 赋值为 ""，否则赋值为 它自身
+    // 给 el 挂载 slotTarget 属性，值为 "default" 或 slotTarget
     el.slotTarget = slotTarget === '""' ? '"default"' : slotTarget
+    // 给 el 挂载 slotTargetDynamic 属性
+    // 如果 存在 :slot 或者 v-bind:slot 属性，则赋值为 true，否则是 false
     el.slotTargetDynamic = !!(el.attrsMap[':slot'] || el.attrsMap['v-bind:slot'])
     // preserve slot as an attribute for native shadow DOM compat
     // only for non-scoped slots.
+    // 如果 不是 template 标签上，且 el.slotScope 不存在
     if (el.tag !== 'template' && !el.slotScope) {
+      // 给 el 添加 slot 属性，值为 slotTarget
+      // 添加的属性值为
+      // { start, end } = getRawBindingAttr(el, 'slot') 如果返回值里面有 start 和 end，且 != null
+      // { name: 'slot', value: slotTarget, dynamic: false, start, end }
+      // el.attrs.push 上面的 属性值
+      // el.plain = false
       addAttr(el, 'slot', slotTarget, getRawBindingAttr(el, 'slot'))
     }
   }
 
   // 2.6 v-slot syntax
+  // TODO
   if (process.env.NEW_SLOT_SYNTAX) {
     if (el.tag === 'template') {
       // v-slot on <template>
@@ -926,6 +958,11 @@ function processAttrs (el) {
   }
 }
 
+/**
+ * 查看 传入的 ASTElement 及其 parent 是否存在 for 属性，如果有一个存在，则返回 true ,否则 返回 false
+ * @param el ASTElement
+ * @returns {boolean}
+ */
 function checkInFor (el: ASTElement): boolean {
   let parent = el
   while (parent) {

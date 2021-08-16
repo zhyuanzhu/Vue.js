@@ -25,10 +25,12 @@ export function addProp (el: ASTElement, name: string, value: string, range?: Ra
   el.plain = false
 }
 
+// 给 el 添加属性
 export function addAttr (el: ASTElement, name: string, value: any, range?: Range, dynamic?: boolean) {
   const attrs = dynamic
     ? (el.dynamicAttrs || (el.dynamicAttrs = []))
     : (el.attrs || (el.attrs = []))
+  // rangeSetItem({ name, value, dynamic }, range) => {name, value, dynamic, start?: range.start, end?: range.end}
   attrs.push(rangeSetItem({ name, value, dynamic }, range))
   el.plain = false
 }
@@ -165,6 +167,7 @@ export function getRawBindingAttr (
 }
 
 // 获取绑定的属性 :xx v-bind:xx
+// 获取动态绑定的属性值，如果 getStatic 是 true，则将该属性值在 attrsList 中的项删除，返回 该属性对应的值
 export function getBindingAttr (
   el: ASTElement,
   name: string,
@@ -190,7 +193,7 @@ export function getBindingAttr (
 // By default it does NOT remove it from the map (attrsMap) because the map is
 // needed during codegen.
 /**
- *
+ * 获取对应的属性值，如果 属性值存在，则在属性 attrsList 中找到该项，然后删除。如果传入了 removeFromMap 是 true, 则从 attrsMap 中也将该属性删除
  * @param el ASTElement
  * @param name String
  * @param removeFromMap  是否删除
