@@ -11,10 +11,17 @@ export function baseWarn (msg: string, range?: Range) {
 }
 /* eslint-enable no-unused-vars */
 
+/**
+ * 返回一个数组，modules 中 每一项 key 对应的属性值，并过滤掉 false 的， modules 不存在返回 []
+ * @param modules
+ * @param key
+ * @returns {*}
+ */
 export function pluckModuleFunction<F: Function> (
   modules: ?Array<Object>,
   key: string
 ): Array<F> {
+  // 如果 modules 存在，返回 modules 中每一项 m 的 m[key] 生成的新数组， filter 过滤掉 m[key] 不存在的项
   return modules
     ? modules.map(m => m[key]).filter(_ => _)
     : []

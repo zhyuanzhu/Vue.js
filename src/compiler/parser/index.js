@@ -475,13 +475,23 @@ export function processElement (
   // element.refInFor = boolean
 
   processSlotContent(element)
-  //
+  // element.slotTarget
+  // element.slotTargetDynamic
+  // 如果 element.tag 不是 template 标签上，且 element.slotScope 不存在, 则 element.plain = false
 
   processSlotOutlet(element)
+  // 如果是 slot 标签
+  // element.slotName = xxx
+
   processComponent(element)
+  // el.component  如果 el.is 存在
+  // el.inlineTemplate  如果 el.attrsMap['inline-template'] 存在
+
+  // 遍历 options.modules 中每一项的 transformNode 对应的值
   for (let i = 0; i < transforms.length; i++) {
     element = transforms[i](element, options) || element
   }
+
   processAttrs(element)
   return element
 }
@@ -643,6 +653,10 @@ function processOnce (el) {
 
 // handle content being passed to a component as slot,
 // e.g. <template slot="xxx">, <div slot-scope="xxx">
+/**
+ * 获取 slot 属性绑定的值
+ * @param el
+ */
 function processSlotContent (el) {
   let slotScope
   if (el.tag === 'template') {
@@ -797,9 +811,16 @@ function getSlotName (binding) {
 }
 
 // handle <slot/> outlets
+/**
+ * 获取 slot 插槽内容
+ * @param el
+ */
 function processSlotOutlet (el) {
+  // 如果 el.tag 是 slot, 否则直接返回 undefined
   if (el.tag === 'slot') {
+    // 获取动态绑定的属性值 name, 并将值作为 slotName 的属性值挂载到 el 上
     el.slotName = getBindingAttr(el, 'name')
+    // 如果 slot 标签上有 key，在非生产环境抛出警告
     if (process.env.NODE_ENV !== 'production' && el.key) {
       warn(
         `\`key\` does not work on <slot> because slots are abstract outlets ` +
@@ -811,12 +832,20 @@ function processSlotOutlet (el) {
   }
 }
 
+/**
+ * 处理 component
+ * @param el
+ */
 function processComponent (el) {
   let binding
+  // 查看标签是否有 is 属性，如果有 is 属性，则给 el 挂载属性 component，值为 is 的属性值
   if ((binding = getBindingAttr(el, 'is'))) {
     el.component = binding
   }
+
+  // 如果 el 有 inline-template 属性
   if (getAndRemoveAttr(el, 'inline-template') != null) {
+    // 则给 el 挂载 inlineTemplate 属性，值为 true
     el.inlineTemplate = true
   }
 }
@@ -824,13 +853,19 @@ function processComponent (el) {
 function processAttrs (el) {
   const list = el.attrsList
   let i, l, name, rawName, value, modifiers, syncGen, isDynamic
+  // 遍历 传入的 ASTElement 的 attrsList
   for (i = 0, l = list.length; i < l; i++) {
+    // 缓存每一项的 name 与 value
     name = rawName = list[i].name
     value = list[i].value
+    // 如果 name 是动态绑定的
+    // 例如 v-bind @click :class
     if (dirRE.test(name)) {
       // mark element as dynamic
       el.hasBindings = true
       // modifiers
+      // name.replace(dirRE, ''） @click ---> click
+      // TODO  =============
       modifiers = parseModifiers(name.replace(dirRE, ''))
       // support .foo shorthand syntax for the .prop modifier
       if (process.env.VBIND_PROP_SHORTHAND && propBindRE.test(name)) {
