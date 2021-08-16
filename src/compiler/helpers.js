@@ -180,24 +180,41 @@ export function getBindingAttr (
 // doesn't get processed by processAttrs.
 // By default it does NOT remove it from the map (attrsMap) because the map is
 // needed during codegen.
+/**
+ *
+ * @param el ASTElement
+ * @param name String
+ * @param removeFromMap  是否删除
+ * @returns {*}
+ */
 export function getAndRemoveAttr (
   el: ASTElement,
   name: string,
   removeFromMap?: boolean
 ): ?string {
   let val
+  // 从元素节点 ASTElement 中获取所有属性的 k: v map对象
+  // 查看 该对象中是否存在传入的  name 的属性值
+  // 如果存在
   if ((val = el.attrsMap[name]) != null) {
+    // 将属性数组 缓存到 list Array<ASTAttr>
     const list = el.attrsList
+    // 遍历属性数组
     for (let i = 0, l = list.length; i < l; i++) {
+      // 找到属性名和 name 相等的一项
       if (list[i].name === name) {
+        // 删除数组中的该项，退出循环
         list.splice(i, 1)
         break
       }
     }
   }
+  // 如果 removeFromMap 传入了
   if (removeFromMap) {
+    // 删除 属性 map 中对应的属性值
     delete el.attrsMap[name]
   }
+  // 返回获取到的该属性值
   return val
 }
 

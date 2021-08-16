@@ -57,6 +57,7 @@ let platformMustUseProp
 let platformGetTagNamespace
 let maybeComponent
 
+// 创建一个 元素节点的 AST
 export function createASTElement (
   tag: string,
   attrs: Array<ASTAttr>,
@@ -917,8 +918,10 @@ function parseModifiers (name: string): Object | void {
   }
 }
 
+// 创建一个 attr 的 map
 function makeAttrsMap (attrs: Array<Object>): Object {
   const map = {}
+  // 如果 attrs 的长度大于 0
   for (let i = 0, l = attrs.length; i < l; i++) {
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -926,8 +929,11 @@ function makeAttrsMap (attrs: Array<Object>): Object {
     ) {
       warn('duplicate attribute: ' + attrs[i].name, attrs[i])
     }
+    // 将每一项属性的 name 作为 key
+    // 其对应的 value 作为值
     map[attrs[i].name] = attrs[i].value
   }
+  // 返回这个属性 和 属性值的 k: v 对象
   return map
 }
 
