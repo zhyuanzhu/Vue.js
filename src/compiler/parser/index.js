@@ -450,14 +450,18 @@ function processRawAttrs (el) {
   }
 }
 
+// 解析 元素 AST
 export function processElement (
   element: ASTElement,
   options: CompilerOptions
 ) {
+  // 给 element 设置 key 属性
   processKey(element)
 
   // determine whether this is a plain element after
   // removing structural attributes
+  // 如果不存在 key ,没有 slot-scope v-slot ,也没有属性
+  // 则给 element 挂载 属性 plain，赋值为 true，否则是 false
   element.plain = (
     !element.key &&
     !element.scopedSlots &&
@@ -475,10 +479,14 @@ export function processElement (
   return element
 }
 
-// 
+// 获取 key
+// 如果 key 存在，给 el 挂载属性 key，并赋值为 获取到的值
 function processKey (el) {
+  // 获取元素的 key 属性值
   const exp = getBindingAttr(el, 'key')
+  // 如果 key 存在
   if (exp) {
+    // 非生产环境，将 key 设置在 template 上，会抛出警告
     if (process.env.NODE_ENV !== 'production') {
       if (el.tag === 'template') {
         warn(
@@ -486,6 +494,7 @@ function processKey (el) {
           getRawBindingAttr(el, 'key')
         )
       }
+      // 如果 el 有 for 属性
       if (el.for) {
         const iterator = el.iterator2 || el.iterator1
         const parent = el.parent

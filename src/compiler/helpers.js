@@ -149,6 +149,12 @@ export function addHandler (
   el.plain = false
 }
 
+/**
+ *
+ * @param el ASTElement
+ * @param name
+ * @returns {ASTAttr} 返回 key 为 :xx || v-bind:xx || xx 对应的属性值
+ */
 export function getRawBindingAttr (
   el: ASTElement,
   name: string
@@ -158,14 +164,17 @@ export function getRawBindingAttr (
     el.rawAttrsMap[name]
 }
 
+// 获取绑定的属性 :xx v-bind:xx
 export function getBindingAttr (
   el: ASTElement,
   name: string,
   getStatic?: boolean
 ): ?string {
+  // 获取动态绑定的属性值 :xx v-bind:xx
   const dynamicValue =
     getAndRemoveAttr(el, ':' + name) ||
     getAndRemoveAttr(el, 'v-bind:' + name)
+  // 如果有值
   if (dynamicValue != null) {
     return parseFilters(dynamicValue)
   } else if (getStatic !== false) {
@@ -218,6 +227,14 @@ export function getAndRemoveAttr (
   return val
 }
 
+// 与 getAndRemoveAttr 不同的是 传入的 name 是 一个正则表达式
+// 如果有 和正则想匹配的属性，返回该属性
+// {
+// name,
+// value,
+// start?,
+// end?
+// }
 export function getAndRemoveAttrByRegex (
   el: ASTElement,
   name: RegExp
@@ -232,10 +249,14 @@ export function getAndRemoveAttrByRegex (
   }
 }
 
+// 修改参数 item 的 start 和 end 属性
 function rangeSetItem (
   item: any,
   range?: { start?: number, end?: number }
 ) {
+  // 如果传入了 range
+  // 且 range 传入了 start 和 end 属性
+  // 则将 传入的 range 的 start 和 end 赋值给 item.start 和 item.end
   if (range) {
     if (range.start != null) {
       item.start = range.start
