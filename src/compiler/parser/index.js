@@ -405,15 +405,24 @@ export function parse (
   return root
 }
 
+/**
+ * 如果 v-pre 属性存在，给该 el 元素 AST 添加 pre 属性，赋值为 true
+ * @param el ASTElement
+ */
 function processPre (el) {
   if (getAndRemoveAttr(el, 'v-pre') != null) {
     el.pre = true
   }
 }
 
+/**
+ * 处理 el 的 attrsList 属性列表
+ * @param el ASTElement
+ */
 function processRawAttrs (el) {
   const list = el.attrsList
   const len = list.length
+  // 如果 el 的 attrsList 存在
   if (len) {
     const attrs: Array<ASTAttr> = el.attrs = new Array(len)
     for (let i = 0; i < len; i++) {
@@ -426,6 +435,15 @@ function processRawAttrs (el) {
         attrs[i].end = list[i].end
       }
     }
+  // attrs = [
+    // {
+    //  name: 'name',
+    //  value: 'value',
+    //  start?: 'start',
+    //  end?: 'end'
+    // }, ...
+    // ]
+  // 如果 el.pre 不存在，给 el 上挂载 plain 属性，设置为 true
   } else if (!el.pre) {
     // non root node in pre blocks with no attributes
     el.plain = true
@@ -457,6 +475,7 @@ export function processElement (
   return element
 }
 
+// 
 function processKey (el) {
   const exp = getBindingAttr(el, 'key')
   if (exp) {
