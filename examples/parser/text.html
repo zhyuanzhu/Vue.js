@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div id="app">{{ msg.length > 1 ? 'a' : 'c' }}</div>
+<script src="../../dist/vue.js"></script>
+<script>
+  var vm = new Vue({
+    el: '#app',
+    data () {
+      return {
+        msg: 'hello vue.js'
+      }
+    }
+  })
+</script>
+</body>
+</html>
