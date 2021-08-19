@@ -295,7 +295,10 @@ export function parse (
         processRawAttrs(element)
       } else if (!element.processed) {
         // structural directives
+        // 解析 v-for 属性
         processFor(element)
+
+        // 解析 v-if 属性
         processIf(element)
         processOnce(element)
       }
@@ -640,20 +643,34 @@ export function parseFor (exp: string): ?ForParseResult {
   return res
 }
 
+/**
+ * 解析 v-if 属性，并给 el 挂载属性
+ * @param el ASTElement
+ */
 function processIf (el) {
+  // v-if="isShow"
   const exp = getAndRemoveAttr(el, 'v-if')
+  // 如果获取到 v-if 属性
   if (exp) {
+    // 给元素挂载 if 属性，其值为 获取到的 v-if 的属性值      eg: ---> isShow
     el.if = exp
+    // TODO  这样处理的原因是什么？？？？
     addIfCondition(el, {
       exp: exp,
       block: el
     })
+  // 如果没获取到 v-if 的属性值
   } else {
+    // 尝试获取标签的 v-else 属性
     if (getAndRemoveAttr(el, 'v-else') != null) {
+      // 如果 获取到了 v-else 属性的值
+      // 给元素 el 挂载 else 属性，并设置为 true
       el.else = true
     }
     const elseif = getAndRemoveAttr(el, 'v-else-if')
     if (elseif) {
+      // 如果 获取到了 v-else-if 属性的值
+      // 给元素挂载 elseif 属性，并给其赋值为 获取到的 v-else-if 的属性值
       el.elseif = elseif
     }
   }
@@ -694,9 +711,12 @@ function findPrevElement (children: Array<any>): ASTElement | void {
 }
 
 export function addIfCondition (el: ASTElement, condition: ASTIfCondition) {
+  // 查看传入的元素是否有 ifConditions 属性，如果没有，给元素挂载该属性，并初始化为一个空数组
   if (!el.ifConditions) {
     el.ifConditions = []
   }
+  // 向元素的 ifConditions 中 push condition 值
+  // v-if 的时候 是 { exp: v-if 的属性值， block: 当前的 ASTElement }
   el.ifConditions.push(condition)
 }
 
