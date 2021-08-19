@@ -300,15 +300,21 @@ export function parse (
         processOnce(element)
       }
 
+      // 如果是第一次，root 不存在
       if (!root) {
+        // 将创建的  ast 赋值给 root
         root = element
         if (process.env.NODE_ENV !== 'production') {
+          // 如果是开发环境，对 root 节点元素 tag 做类判断
           checkRootConstraints(root)
         }
       }
 
       if (!unary) {
+        // 如果是 双标签
+        // 将当前 创建的 ASTElement 赋值给 currentParent，做一个单项的父子节点关系映射
         currentParent = element
+        // 将 element push 进栈
         stack.push(element)
       } else {
         closeElement(element)
