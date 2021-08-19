@@ -94,6 +94,11 @@ export function parse (
     el.attrsMap['v-bind:is'] ||
     !(el.attrsMap.is ? isReservedTag(el.attrsMap.is) : isReservedTag(el.tag))
   )
+
+  // pluckModuleFunction 返回 符合条件的数组，每一项都是函数
+  // options 定义在  src/platforms/web/compiler/options.js
+  // modules 定义在  src/platforms/web/compiler/modules/index.js
+
   transforms = pluckModuleFunction(options.modules, 'transformNode')
   preTransforms = pluckModuleFunction(options.modules, 'preTransformNode')
   postTransforms = pluckModuleFunction(options.modules, 'postTransformNode')
@@ -216,9 +221,12 @@ export function parse (
     shouldDecodeNewlinesForHref: options.shouldDecodeNewlinesForHref,
     shouldKeepComment: options.comments,
     outputSourceRange: options.outputSourceRange,
+
+    // 创建 ast 树并做一些管理
     start (tag, attrs, unary, start, end) {
       // check namespace.
       // inherit parent ns if there is one
+      //  currentParent 第一次为 undefined
       const ns = (currentParent && currentParent.ns) || platformGetTagNamespace(tag)
 
       // handle IE svg bug
@@ -226,13 +234,15 @@ export function parse (
       if (isIE && ns === 'svg') {
         attrs = guardIESVGBug(attrs)
       }
-
+      // 创建一个 元素的 AST 树
       let element: ASTElement = createASTElement(tag, attrs, currentParent)
+      // 给 创建的 节点添加属性
       if (ns) {
         element.ns = ns
       }
 
       if (process.env.NODE_ENV !== 'production') {
+        // 如果传入了  outputSourceRange
         if (options.outputSourceRange) {
           element.start = start
           element.end = end
@@ -255,6 +265,7 @@ export function parse (
         })
       }
 
+      // 传入 style || script 标签 且 不是服务端渲染
       if (isForbiddenTag(element) && !isServerRendering()) {
         element.forbidden = true
         process.env.NODE_ENV !== 'production' && warn(
@@ -270,6 +281,7 @@ export function parse (
         element = preTransforms[i](element, options) || element
       }
 
+      // v-pre 指令相关
       if (!inVPre) {
         processPre(element)
         if (element.pre) {
@@ -303,6 +315,7 @@ export function parse (
       }
     },
 
+    // 管理 ast 树，并做结束标签的处理
     end (tag, start, end) {
       const element = stack[stack.length - 1]
       // pop stack
@@ -314,6 +327,7 @@ export function parse (
       closeElement(element)
     },
 
+    // 文本处理，创建文本的 ast 节点
     chars (text: string, start: number, end: number) {
       if (!currentParent) {
         if (process.env.NODE_ENV !== 'production') {
@@ -385,6 +399,8 @@ export function parse (
         }
       }
     },
+
+    // 处理 注释，创建 注释节点
     comment (text: string, start, end) {
       // adding anything as a sibling to the root node is forbidden
       // comments should still be allowed, but ignored
@@ -545,9 +561,12 @@ function processRef (el) {
 
 export function processFor (el: ASTElement) {
   let exp
+  // 获取 v-for 的属性值，并从 el 的 attrsList 中删除 该项
   if ((exp = getAndRemoveAttr(el, 'v-for'))) {
+    // res = null 或 { for: '需要遍历的对象', alias: '每一项的值', iterator1: '数组的话是索引，对象是 key 值', iterator2: '数组没有这个属性，对象是索引'}
     const res = parseFor(exp)
     if (res) {
+      // 如果 存在，将 res 对象扩展到 el 上
       extend(el, res)
     } else if (process.env.NODE_ENV !== 'production') {
       warn(
@@ -565,22 +584,53 @@ type ForParseResult = {
   iterator2?: string;
 };
 
+/**
+ * 解析 v-for 的属性值，并返回解析后的对象
+ * @param exp
+ * @returns {{}}
+ */
 export function parseFor (exp: string): ?ForParseResult {
+  // 查看传入的 exp 字符串是否满足 v-for 的书写规则要求
   const inMatch = exp.match(forAliasRE)
   if (!inMatch) return
   const res = {}
+  // 如果满足
+  // 例如 exp = '(item, index) in list'
+  // inMatch = ["(item, index) in list", "(item, index)", "list"]
+
+  // exp = 'item in list'
+  // inMatch = ["item in list", "item", "list"]
+
   res.for = inMatch[2].trim()
+  // res = { for: 'list' }
+
+  // 去掉 inMatch[1] 两头的 空白 并将 括号替换为 ''
+  // 'item, index'
+  // item
   const alias = inMatch[1].trim().replace(stripParensRE, '')
+
+  // 如果不是单个 的 item 这样，则 iteratorMatch 有值，否则为 null
+  // [", index", " index",]
   const iteratorMatch = alias.match(forIteratorRE)
   if (iteratorMatch) {
+    // 将 'item, index' 中的 ', index' 替换掉
     res.alias = alias.replace(forIteratorRE, '').trim()
+    // iterator1 = index
     res.iterator1 = iteratorMatch[1].trim()
+    // 如果第三行存在 'key, value, index' 遍历对象的时候处理
     if (iteratorMatch[2]) {
       res.iterator2 = iteratorMatch[2].trim()
     }
+    // res = {
+    //    for: 'list',
+    //    alias: 'item',
+    //    iterator1: 'index',
+    //    iterator2?: 'v'
+    // }
   } else {
     res.alias = alias
   }
+  // res 对象至少保证了存在 需要遍历的对象 for 和 每一项 alias
   return res
 }
 
@@ -1042,7 +1092,14 @@ function isTextTag (el): boolean {
   return el.tag === 'script' || el.tag === 'style'
 }
 
+/**
+ * 判断标签是否被允许  不允许 style 标签， script 标签
+ * @param el ASTElement
+ * @returns {boolean|boolean}
+ */
 function isForbiddenTag (el): boolean {
+  // 如果传入的 el 的 tag 是 style 或者
+  // 是 script, 且 标签的 的属性不存在 type 或者 type 的值是 text/javascript, 都返回 true
   return (
     el.tag === 'style' ||
     (el.tag === 'script' && (

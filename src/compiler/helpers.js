@@ -200,7 +200,7 @@ export function getBindingAttr (
 // By default it does NOT remove it from the map (attrsMap) because the map is
 // needed during codegen.
 /**
- * 获取对应的属性值，如果 属性值存在，则在属性 attrsList 中找到该项，然后删除。如果传入了 removeFromMap 是 true, 则从 attrsMap 中也将该属性删除
+ * 获取对应的属性值，如果 属性值存在，则在属性 attrsList 中找到该项，然后删除该项。如果传入了 removeFromMap 是 true, 则从 attrsMap 中也将该属性删除
  * @param el ASTElement
  * @param name String
  * @param removeFromMap  是否删除
