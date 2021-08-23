@@ -353,6 +353,8 @@ export function parse (
 
     // 文本处理，创建文本的 ast 节点
     chars (text: string, start: number, end: number) {
+      // 如果当前节点是根节点
+      // 对 没有 template tag 标签，及 template 标签里面没有 dom 元素包裹，直接是 文本对情况抛出警告
       if (!currentParent) {
         if (process.env.NODE_ENV !== 'production') {
           if (text === template) {
@@ -371,19 +373,23 @@ export function parse (
       }
       // IE textarea placeholder bug
       /* istanbul ignore if */
+
       if (isIE &&
         currentParent.tag === 'textarea' &&
         currentParent.attrsMap.placeholder === text
       ) {
         return
       }
+
       const children = currentParent.children
       if (inPre || text.trim()) {
         text = isTextTag(currentParent) ? text : decodeHTMLCached(text)
+      // 文本长度 = 0
       } else if (!children.length) {
         // remove the whitespace-only node right after an opening tag
         text = ''
       } else if (whitespaceOption) {
+        // TODO  condense ???
         if (whitespaceOption === 'condense') {
           // in condense mode, remove the whitespace node if it contains
           // line break, otherwise condense to a single space
@@ -394,6 +400,7 @@ export function parse (
       } else {
         text = preserveWhitespace ? ' ' : ''
       }
+      // 格式化文本之后，如果 text 文本存在
       if (text) {
         if (!inPre && whitespaceOption === 'condense') {
           // condense consecutive whitespaces into single space
@@ -401,6 +408,8 @@ export function parse (
         }
         let res
         let child: ?ASTNode
+        // 不是 v-pre 且 text 不是 ' '
+        // res = { expression: string, tokens: [] }
         if (!inVPre && text !== ' ' && (res = parseText(text, delimiters))) {
           child = {
             type: 2,
@@ -408,6 +417,7 @@ export function parse (
             tokens: res.tokens,
             text
           }
+        // 当前 文本 不是 ' ' || 当前 children 的 length = 0 || 当前 children 的 最后一项（栈顶）的 文本值 不是 ' '
         } else if (text !== ' ' || !children.length || children[children.length - 1].text !== ' ') {
           child = {
             type: 3,
@@ -419,6 +429,7 @@ export function parse (
             child.start = start
             child.end = end
           }
+          // 将 当前文本 AST push 添加到 当前文本元素的父元素的 children 中
           children.push(child)
         }
       }
@@ -1129,6 +1140,7 @@ function makeAttrsMap (attrs: Array<Object>): Object {
 }
 
 // for script (e.g. type="x/template") or style, do not decode content
+// 查看 ASTElement 是否是 script 后者 style 标签
 function isTextTag (el): boolean {
   return el.tag === 'script' || el.tag === 'style'
 }
