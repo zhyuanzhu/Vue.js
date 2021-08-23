@@ -439,16 +439,20 @@ export function parse (
     comment (text: string, start, end) {
       // adding anything as a sibling to the root node is forbidden
       // comments should still be allowed, but ignored
+      // 如果 当前元素的 父元素存在，currentParent 已经在 start 的时候做了初始化
       if (currentParent) {
+        // 初始化创建一个注释 AST
         const child: ASTText = {
           type: 3,
           text,
           isComment: true
         }
+        // 非生产环境且 options 的 outputSourceRange 属性值 存在
         if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
           child.start = start
           child.end = end
         }
+        // 将该注释节点添加进去
         currentParent.children.push(child)
       }
     }
