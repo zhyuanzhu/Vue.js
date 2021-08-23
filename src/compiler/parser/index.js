@@ -121,12 +121,18 @@ export function parse (
     }
   }
 
+  /**
+   * 删除空白子节点，移除 slotScope 节点；校验 element 的一些规则
+   * @param element
+   */
   function closeElement (element) {
+    // 移除 element 中的空白节点，从 children 中移除
     trimEndingWhitespace(element)
     if (!inVPre && !element.processed) {
       element = processElement(element, options)
     }
     // tree management
+    // stack.length > 0 说明 element 还有父元素
     if (!stack.length && element !== root) {
       // allow root elements with v-if, v-else-if and v-else
       if (root.if && (element.elseif || element.else)) {
@@ -164,6 +170,7 @@ export function parse (
 
     // final children cleanup
     // filter out scoped slots
+    // 将 element.children 中 子项是 slotScope 的过滤掉
     element.children = element.children.filter(c => !(c: any).slotScope)
     // remove trailing whitespace node again
     trimEndingWhitespace(element)
@@ -176,11 +183,16 @@ export function parse (
       inPre = false
     }
     // apply post-transforms
+    // web 平台 postTransforms = []
     for (let i = 0; i < postTransforms.length; i++) {
       postTransforms[i](element, options)
     }
   }
 
+  /**
+   * 将元素的空白节点取出，并从 children 列表中移除
+   * @param el ASTElement
+   */
   function trimEndingWhitespace (el) {
     // remove trailing whitespace node
     if (!inPre) {
@@ -326,9 +338,12 @@ export function parse (
 
     // 管理 ast 树，并做结束标签的处理
     end (tag, start, end) {
+      // 解析结束标签，从栈顶获取最当前结束标签对应的元素
       const element = stack[stack.length - 1]
       // pop stack
+      // 出栈
       stack.length -= 1
+      // 获取当前元素的父元素
       currentParent = stack[stack.length - 1]
       if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
         element.end = end
