@@ -34,4 +34,21 @@ _init() ---> initState() ---> initData() ---> observe(value)
 ---> 创建 Observer 对象 ---> defineReactive ---> 依赖收集 ---> Watcher
 
 
+### Phrasing
+
+- 所有可放在 `p` 标签内，构成段落的元素均属于 **Phrasing** 元素
+
+- 非 **Phrasing** 元素，放置到 p 标签内，页面解析会不按照元素嵌套结构  
+```html
+<p>
+    a
+    <div>b</div>
+</p>  
+== 浏览器解析之后的标签 ==>    
+<p>a</p>
+<div>b</div>
+<p></p>
+```
+
+
 

@@ -357,11 +357,13 @@ export function parse (
       // 对 没有 template tag 标签，及 template 标签里面没有 dom 元素包裹，直接是 文本对情况抛出警告
       if (!currentParent) {
         if (process.env.NODE_ENV !== 'production') {
+          // 组件就是纯文本
           if (text === template) {
             warnOnce(
               'Component template requires a root element, rather than just text.',
               { start }
             )
+          // 文本写在了组件之外
           } else if ((text = text.trim())) {
             warnOnce(
               `text "${text}" outside root element will be ignored.`,

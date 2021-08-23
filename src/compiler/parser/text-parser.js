@@ -51,6 +51,7 @@ export function parseText (
     index = match.index
     // push text token
     // msg 情况， index = 1
+    // 这个时候处理的是非插值表达式的文本，例如  {{ index }}: {{ item.name }} 中的 :
     if (index > lastIndex) {
       // tokenValue 是一个空字符串 ' '
       rawTokens.push(tokenValue = text.slice(lastIndex, index))
@@ -62,6 +63,7 @@ export function parseText (
     }
     // tag token
     // abc
+    // TODO parseFilters 解析字符串，处理 filter ？？？？
     const exp = parseFilters(match[1].trim())
     // exp msg
     // 此时的 tokens = ["\" \"", '_s(msg)']
