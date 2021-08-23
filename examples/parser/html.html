@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../../dist/vue.js"></script>
+</head>
+<body>
+  <div id="app">
+    <ul class="test">
+      <li v-for="item in list" :key="item.name">
+        <span>姓名：{{ item.name }}</span>
+        <span>年龄：{{ item.age }}</span>
+      </li>
+    </ul>
+  </div>
+  <script>
+    const vm = new Vue({
+      el: '#app',
+      data () {
+        return {
+          list: [
+            { name: 'James', age: 19 },
+            { name: 'Ban', age: 23 },
+            { name: 'Jim', age: 18 },
+            { name: 'Kan', age: 29 },
+          ]
+        }
+      }
+    })
+  </script>
+  <script>
+    // parse(template, options)
+    // template = <div id=\"app\">\n <ul class=\"test\">\n <li v-for=\"item in list\" :key=\"item.name\">\n <span>姓名：{{ item.name }}</span>\n <span>年龄：{{ item.age }}</span>\n </li>\n </ul>\n </div>
+
+    // parseHTML(html, options)   html 为传入的 模版 template 字符串
+    // options 是 parse 函数调用 parseHTML 之前经过处理之后的 options
+    // 逐级解析截取 template 字符串
+    // 最外层 div  ====> {tag: 'div', attrs: [{ name: 'id', value: 'app', start: 5, end: 13 }]}
+    // ast = parseHTML(html, options)
+    const ast = {
+      tag: 'div',
+      type: 1,
+      start: 0,
+      end: 195,
+      parent: undefined,
+      attrs: [{
+        name: 'id',
+        value: "\"app\"",
+        start: 5,
+        end: 13,
+        dynamic: undefined
+      }],
+      attrsList: [],    // 通过 attrs 获取到
+      attrsMap: {
+        id: 'value'
+      },   // 通过 attrsList，提取 name 作为 k，将 value 值作为 v 而生成的一个 对象
+      children: [{
+        // 数据结构同 外层
+        tag: 'ul',
+        // ....
+        children: [{
+          alias: "item",
+          // 如果是 (item, index) in list 这种处理的话，还会有 iterator1 属性，值为 index
+          attrsList: [],
+          attrsMap: {'v-for': "item in list", ':key': "item.name"},
+          children: [],
+          end: 176,
+          for: "list",
+          key: "item.name",
+          parent: {type: 1, tag: "ul"}, // 外层 的 ul ASTElement
+          plain: false,
+          rawAttrsMap: {/** ... */},
+          start: 43,
+          tag: "li",
+          type: 1
+        }]
+      }]
+    }
+
+  </script>
+</body>
+</html>
