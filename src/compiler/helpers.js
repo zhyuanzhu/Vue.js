@@ -69,12 +69,32 @@ export function addDirective (
   el.plain = false
 }
 
+/**
+ * 对事件名和修饰符进行字符串拼接
+ * @param symbol 自定义标识
+ * @param name 事件名称
+ * @param dynamic
+ * @returns {string}
+ */
 function prependModifierMarker (symbol: string, name: string, dynamic?: boolean): string {
+  // 如果 dynamic 为 true, 拼接为 _p函数的参数  ===> _p(name, symbol)
+  // 否则直接返回 symbol + name 的字符串
   return dynamic
     ? `_p(${name},"${symbol}")`
     : symbol + name // mark the event as captured
 }
 
+/**
+ * 添加事件
+ * @param el ASTElement
+ * @param name 事件名称
+ * @param value 事件处理函数
+ * @param modifiers 事件修饰 .stop .prevent .once 等
+ * @param important
+ * @param warn
+ * @param range
+ * @param dynamic
+ */
 export function addHandler (
   el: ASTElement,
   name: string,
@@ -88,6 +108,8 @@ export function addHandler (
   modifiers = modifiers || emptyObject
   // warn prevent and passive modifier
   /* istanbul ignore if */
+  // 非生产环境，对同一事件同时采用 prevent 和 passive 修饰 会抛出警告
+  // .passive 不阻止事件的默认行为，.prevent 阻止事件的默认行为     处理结果会忽略掉 .prevent
   if (
     process.env.NODE_ENV !== 'production' && warn &&
     modifiers.prevent && modifiers.passive
@@ -102,6 +124,7 @@ export function addHandler (
   // normalize click.right and click.middle since they don't actually fire
   // this is technically browser-specific, but at least for now browsers are
   // the only target envs that have right/middle clicks.
+  // 鼠标按键行为
   if (modifiers.right) {
     if (dynamic) {
       name = `(${name})==='click'?'contextmenu':(${name})`
@@ -118,6 +141,7 @@ export function addHandler (
   }
 
   // check capture modifier
+  // 事件捕获
   if (modifiers.capture) {
     delete modifiers.capture
     name = prependModifierMarker('!', name, dynamic)
