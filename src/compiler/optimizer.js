@@ -85,6 +85,12 @@ function markStatic (node: ASTNode) {
   }
 }
 
+/**
+ * 给父元素标记是不是 staticRoot 节点，如果没有子节点，则不会标记
+ * 标记是否是静态根节点
+ * @param node
+ * @param isInFor
+ */
 function markStaticRoots (node: ASTNode, isInFor: boolean) {
   // 如果是元素节点
   if (node.type === 1) {

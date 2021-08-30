@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="../../dist/vue.js"></script>
+</head>
+<body>
+<div id="app">
+  <ul class="test">
+    <li v-for="item in list" :key="item.name">
+      <span>姓名：{{ item.name }}</span>
+      <span>年龄：{{ item.age }}</span>
+    </li>
+  </ul>
+  <div class="optimizer">
+    这个是什么呢？
+  </div>
+</div>
+<script>
+  const vm = new Vue({
+    el: '#app',
+    data () {
+      return {
+        list: [
+          { name: 'James', age: 19 },
+          { name: 'Ban', age: 23 },
+          { name: 'Jim', age: 18 },
+          { name: 'Kan', age: 29 },
+        ]
+      }
+    }
+  })
+</script>
+<script>
+  const ast = {
+    tag: 'div',
+    props: '...',
+    static: false,
+    staticRoot: false,
+    children: [
+      {
+        tag: 'ul',
+      },
+      {
+        tag: 'div',
+        type: 1,
+        static: true,
+        staticRoot: true,
+        children: [
+          {type: 3, text: "\n    这个是什么呢？\n  ", start: 200, end: 215, static: true}
+        ]
+      }
+    ]
+  }
+
+</script>
+</body>
+</html>
