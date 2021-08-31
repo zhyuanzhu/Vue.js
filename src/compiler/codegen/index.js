@@ -40,12 +40,24 @@ export type CodegenResult = {
   staticRenderFns: Array<string>
 };
 
+/**
+ * 将 AST 树转换成 js 代码
+ * @param ast
+ * @param options
+ * @returns {{staticRenderFns: Array<string>, render: string}}
+ */
 export function generate (
   ast: ASTElement | void,
   options: CompilerOptions
 ): CodegenResult {
+  // 创建一个 CodegenState 的实例
+  // TODO  CodegenState ???
   const state = new CodegenState(options)
   // fix #11483, Root level <script> tags should not be rendered.
+  // 如果 ast 存在，判断 ast 是否是 script 标签，如果是 返回 null。
+  // 否则调用 genElement 函数处理
+  // 如果 ast 不存在，则返回 _c('div') _c函数，传入 'div'
+  // TODO   genElement ???
   const code = ast ? (ast.tag === 'script' ? 'null' : genElement(ast, state)) : '_c("div")'
   return {
     render: `with(this){return ${code}}`,
