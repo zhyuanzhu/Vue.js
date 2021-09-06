@@ -78,6 +78,7 @@ export function createASTElement (
  * Convert HTML string to AST.
  */
 // 将 template 模版字符串编译为 ast
+// ast 的 type 值： 1 元素节点   2 带变量带动态文本节点   3 不带变量的文本节点
 export function parse (
   template: string,
   options: CompilerOptions

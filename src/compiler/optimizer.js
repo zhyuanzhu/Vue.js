@@ -142,19 +142,19 @@ function markStaticRoots (node: ASTNode, isInFor: boolean) {
  * @returns {boolean}
  */
 function isStatic (node: ASTNode): boolean {
-  if (node.type === 2) { // expression
+  if (node.type === 2) { // 带变量的动态文本节点     {{ msg }}
     return false
   }
-  if (node.type === 3) { // text
+  if (node.type === 3) { // 不带变量的纯文本节点
     return true
   }
   // TODO  node.pre ????
   return !!(node.pre || (
-    !node.hasBindings && // no dynamic bindings
+    !node.hasBindings && // 没有动态绑定
     !node.if && !node.for && // not v-if or v-for or v-else
-    !isBuiltInTag(node.tag) && // not a built-in    不是 slot,component
-    isPlatformReservedTag(node.tag) && // not a component
-    !isDirectChildOfTemplateFor(node) &&
+    !isBuiltInTag(node.tag) && // not a built-in  不是内置标签， 如： slot,component
+    isPlatformReservedTag(node.tag) && // 不是组件
+    !isDirectChildOfTemplateFor(node) &&    // 当前节点的父节点必须不带 v-for 的 template 模版
     Object.keys(node).every(isStaticKey)
   ))
 }

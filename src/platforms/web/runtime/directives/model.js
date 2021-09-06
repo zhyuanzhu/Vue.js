@@ -34,6 +34,12 @@ const directive = {
     } else if (vnode.tag === 'textarea' || isTextInputType(el.type)) {
       el._vModifiers = binding.modifiers
       if (!binding.modifiers.lazy) {
+        // 避免了在一些输入法中，v-model产生的异常
+        // 例如在中文输入法中，未输入汉字，输入拼音但时候 input 事件就会触发
+        // e.target.composing = true
+        // if (!e.target.composing) return 
+        // 使用这个自定义属性防止了异常
+
         el.addEventListener('compositionstart', onCompositionStart)
         el.addEventListener('compositionend', onCompositionEnd)
         // Safari < 10.2 & UIWebView doesn't fire compositionend when
